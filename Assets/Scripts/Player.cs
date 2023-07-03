@@ -10,11 +10,11 @@ public class Player : MonoBehaviour
 
     public int playerAttack = 1;
     public int playerHealth = 10;
-    public bool BLOCKING = false;
+    public bool blocking = false;
     public bool detectSwipeOnlyAfterRelease = true;
-    public int SWIPE_DEIRECTION = 0;
-    public float SWIPE_THRESHOLD = 20f;
-    public float HOLD_THRESHOLD = 0.3f;
+    public int swipeDirection = 0;
+    public float swipeThreshold = 20f;
+    public float holdThreshold = 0.3f;
 
     // Update is called once per frame
     void Update()
@@ -28,9 +28,9 @@ public class Player : MonoBehaviour
                 holdStart = Time.time;
             }
 
-            if ((touch.phase == TouchPhase.Stationary)&&(HOLD_THRESHOLD < Time.time - holdStart))
+            if ((touch.phase == TouchPhase.Stationary)&&(holdThreshold < Time.time - holdStart))
             {
-                BLOCKING = true;
+                blocking = true;
             }
 
             //Detects Swipe while finger is still moving
@@ -48,7 +48,7 @@ public class Player : MonoBehaviour
             {
                 fingerDown = touch.position;
                 CheckSwipe();
-                BLOCKING = false;
+                blocking = false;
             }
         }
         //Debug.Log(BLOCKING);
@@ -56,10 +56,10 @@ public class Player : MonoBehaviour
 
     private void CheckSwipe()
     {
-        if(BLOCKING ==false)
+        if(blocking == false)
         {
             //Check if Vertical swipe
-            if (VerticalMove() > SWIPE_THRESHOLD && VerticalMove() > HorizontalValMove())
+            if (VerticalMove() > swipeThreshold && VerticalMove() > HorizontalValMove())
             {
                 //Debug.Log("Vertical");
                 if (fingerDown.y - fingerUp.y > 0)//up swipe
@@ -74,7 +74,7 @@ public class Player : MonoBehaviour
             }
 
             //Check if Horizontal swipe
-            else if (HorizontalValMove() > SWIPE_THRESHOLD && HorizontalValMove() > VerticalMove())
+            else if (HorizontalValMove() > swipeThreshold && HorizontalValMove() > VerticalMove())
             {
                 //Debug.Log("Horizontal");
                 if (fingerDown.x - fingerUp.x > 0)//Right swipe
@@ -110,24 +110,24 @@ public class Player : MonoBehaviour
     void OnSwipeUp()
     {
         Debug.Log("Swipe UP");
-        SWIPE_DEIRECTION = 1;
+        swipeDirection = 1;
     }
 
     void OnSwipeDown()
     {
         Debug.Log("Swipe Down");
-        SWIPE_DEIRECTION = 2;
+        swipeDirection = 2;
     }
 
     void OnSwipeLeft()
     {
         Debug.Log("Swipe Left");
-        SWIPE_DEIRECTION = 3;
+        swipeDirection = 3;
     }
 
     void OnSwipeRight()
     {
         Debug.Log("Swipe Right");
-        SWIPE_DEIRECTION = 4;
+        swipeDirection = 4;
     }
 }

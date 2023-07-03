@@ -200,7 +200,7 @@ GameObject:
   - component: {fileID: 1235139187}
   m_Layer: 0
   m_Name: SpawnController
-  m_TagString: Untagged
+  m_TagString: SpawnController
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -217,8 +217,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0059240dc0d07be449add9827ae46f4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  EnemyPrefab: {fileID: 7499622799034298886, guid: ee0ccd5a115404741b13495fa7d64e81, type: 3}
+  enemyPrefab: {fileID: 7499622799034298886, guid: ee0ccd5a115404741b13495fa7d64e81, type: 3}
   trigger: 0
+  numberOfEnemies: 10
 --- !u!4 &1235139188
 Transform:
   m_ObjectHideFlags: 0
@@ -330,11 +331,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerAttack: 1
   playerHealth: 10
-  BLOCKING: 0
+  blocking: 0
   detectSwipeOnlyAfterRelease: 1
-  SWIPE_DEIRECTION: 0
-  SWIPE_THRESHOLD: 20
-  HOLD_THRESHOLD: 0.3
+  swipeDirection: 0
+  swipeThreshold: 20
+  holdThreshold: 0.3
 --- !u!4 &1567285382
 Transform:
   m_ObjectHideFlags: 0
