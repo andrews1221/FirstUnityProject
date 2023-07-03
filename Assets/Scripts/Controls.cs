@@ -39,7 +39,7 @@ public class Player : MonoBehaviour
                 if (!detectSwipeOnlyAfterRelease)
                 {
                     fingerDown = touch.position;
-                    checkSwipe();
+                    CheckSwipe();
                 }
             }
 
@@ -47,60 +47,61 @@ public class Player : MonoBehaviour
             if (touch.phase == TouchPhase.Ended)
             {
                 fingerDown = touch.position;
-                checkSwipe();
+                CheckSwipe();
                 BLOCKING = false;
             }
         }
         //Debug.Log(BLOCKING);
     }
 
-    void checkSwipe()
+    private void CheckSwipe()
     {
-        if(BLOCKING ==false){
-        //Check if Vertical swipe
-        if (verticalMove() > SWIPE_THRESHOLD && verticalMove() > horizontalValMove())
+        if(BLOCKING ==false)
         {
-            //Debug.Log("Vertical");
-            if (fingerDown.y - fingerUp.y > 0)//up swipe
+            //Check if Vertical swipe
+            if (VerticalMove() > SWIPE_THRESHOLD && VerticalMove() > HorizontalValMove())
             {
-                OnSwipeUp();
+                //Debug.Log("Vertical");
+                if (fingerDown.y - fingerUp.y > 0)//up swipe
+                {
+                    OnSwipeUp();
+                }
+                else if (fingerDown.y - fingerUp.y < 0)//Down swipe
+                {
+                    OnSwipeDown();
+                }
+                fingerUp = fingerDown;
             }
-            else if (fingerDown.y - fingerUp.y < 0)//Down swipe
-            {
-                OnSwipeDown();
-            }
-            fingerUp = fingerDown;
-        }
 
-        //Check if Horizontal swipe
-        else if (horizontalValMove() > SWIPE_THRESHOLD && horizontalValMove() > verticalMove())
-        {
-            //Debug.Log("Horizontal");
-            if (fingerDown.x - fingerUp.x > 0)//Right swipe
+            //Check if Horizontal swipe
+            else if (HorizontalValMove() > SWIPE_THRESHOLD && HorizontalValMove() > VerticalMove())
             {
-                OnSwipeRight();
+                //Debug.Log("Horizontal");
+                if (fingerDown.x - fingerUp.x > 0)//Right swipe
+                {
+                    OnSwipeRight();
+                }
+                else if (fingerDown.x - fingerUp.x < 0)//Left swipe
+                {
+                    OnSwipeLeft();
+                }
+                fingerUp = fingerDown;
             }
-            else if (fingerDown.x - fingerUp.x < 0)//Left swipe
-            {
-                OnSwipeLeft();
-            }
-            fingerUp = fingerDown;
-        }
 
-        //No Movement at-all
-        else
-        {
-            //Debug.Log("No Swipe!");
-        }
+            //No Movement at-all
+            else
+            {
+                //Debug.Log("No Swipe!");
+            }
         }
     }
 
-    float verticalMove()
+    private float VerticalMove()
     {
         return Mathf.Abs(fingerDown.y - fingerUp.y);
     }
 
-    float horizontalValMove()
+    private float HorizontalValMove()
     {
         return Mathf.Abs(fingerDown.x - fingerUp.x);
     }
