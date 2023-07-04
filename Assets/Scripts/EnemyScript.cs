@@ -5,7 +5,7 @@ using UnityEngine;
 public class EnemyScript : MonoBehaviour
 {
     public Vector3 targetPosition = new Vector3(0,0,0);
-    private float speed = 10f;
+    public float speed = 10f;
     public int attack = 1;
     public int health = 10;
     public int arrowDirection;
@@ -29,30 +29,32 @@ public class EnemyScript : MonoBehaviour
             //spawner.trigger = true;
             //Destroy(transform.parent.gameObject);
             transform.parent.gameObject.SetActive(false);
+            spawner.trigger = false;
+            spawner.enemyCount++;
             spawner.SpawnEnemy();
-            this.transform.GetChild(0).GetComponent<EnemyScript>().enabled = false;
-            return;
+            //this.transform.GetChild(0).GetComponent<EnemyScript>().enabled = false;
+
+            Debug.Log("Enemy Killed");
         }
 
-        transform.GetComponentInParent<Transform>().position = Vector3.MoveTowards(transform.GetComponentInParent<Transform>().position, targetPosition, Time.deltaTime*speed);
+        //transform.GetComponentInParent<Transform>().position = Vector3.MoveTowards(transform.GetComponentInParent<Transform>().position, targetPosition, Time.deltaTime*speed);
         if (player.swipeDirection == arrowDirection)
         {
-            //Debug.Log("Damage Dealt");
-
             player.swipeDirection = 0;
             arrowDirection = Random.Range(1,5);
             this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
             health -= player.playerAttack;
-            return;
+
+            Debug.Log("Damage Dealt");
         }
         else if (player.swipeDirection != 0)
         {
-            //Debug.Log("Damage Recieved");
-
             player.swipeDirection = 0;
             arrowDirection = Random.Range(1,5);
             this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
             player.playerHealth -= attack;
+
+            Debug.Log("Damage Recieved");
         }
     }
 }

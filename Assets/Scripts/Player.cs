@@ -19,6 +19,11 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        TouchSwipeDetection();
+    }
+
+    private void TouchSwipeDetection()
+    {
         foreach (Touch touch in Input.touches)
         {
             if (touch.phase == TouchPhase.Began)
@@ -28,7 +33,7 @@ public class Player : MonoBehaviour
                 holdStart = Time.time;
             }
 
-            if ((touch.phase == TouchPhase.Stationary)&&(holdThreshold < Time.time - holdStart))
+            if ((touch.phase == TouchPhase.Stationary) && (holdThreshold < Time.time - holdStart))
             {
                 blocking = true;
             }
@@ -51,7 +56,6 @@ public class Player : MonoBehaviour
                 blocking = false;
             }
         }
-        //Debug.Log(BLOCKING);
     }
 
     private void CheckSwipe()

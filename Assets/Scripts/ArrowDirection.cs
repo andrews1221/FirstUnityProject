@@ -46,22 +46,24 @@ public class ArrowDirection : MonoBehaviour
         {
             case 1:
                 //spriteRenderer.sprite = up;
-                arrowTransform.rotation = new Quaternion(0, 0, 90, 0);
+                arrowTransform.rotation = Quaternion.Euler(0, 0, 90);
                 break;
             case 2:
                 //spriteRenderer.sprite = down;
-                arrowTransform.rotation = new Quaternion(0, 0, 270, 0);
+                arrowTransform.rotation = Quaternion.Euler(0, 0, 270);
                 break;
             case 3:
                 //spriteRenderer.sprite = left;
-                arrowTransform.rotation = new Quaternion(0, 0, 180, 0);
+                arrowTransform.rotation = Quaternion.Euler(0, 0, 180);
                 break;
             case 4:
                 //spriteRenderer.sprite = right;
-                arrowTransform.rotation = new Quaternion(0, 0, 0, 0);
+                arrowTransform.rotation = Quaternion.Euler(0, 0, 0);
                 break;
             default:
                 break;
         }
+
+        Debug.Log("Arrow Direction " + arrowTransform.rotation.z);
     }
 }

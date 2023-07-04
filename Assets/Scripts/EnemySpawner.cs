@@ -5,14 +5,15 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private GameObject enemyPrefab;
-    public bool trigger = true;
+    public bool trigger;
     public int numberOfEnemies;
-    [HideInInspector] public int enemyCount = 0;
+    public int enemyCount = 0;
     //public int numberOfSpawnPoints;
     private GameObject[] spawnersList;
     private GameObject[] enemiesObjects;
     private Vector2 enemiesPoolPosition = new Vector2(40, 40);
     private Vector2 cameraBounds;
+    private EnemyScript enemyScript;
 
     // Start is called before the first frame update
     void Awake()
@@ -54,15 +55,27 @@ public class EnemySpawner : MonoBehaviour
         //    Enemy.transform.position = _spawnersList[Random.Range(0, _spawnersList.Length)].transform.position;
         //}
         //trigger = false;
+
+        if (trigger)
+        {
+            MoveEnemy();
+        }
     }
 
     public void SpawnEnemy()
     {
         enemiesObjects[enemyCount].SetActive(true);
-        enemiesObjects[enemyCount].transform.GetChild(0).GetComponent<EnemyScript>().enabled = true;
-        enemyCount++;
+        enemyScript = enemiesObjects[enemyCount].transform.GetChild(0).GetComponent<EnemyScript>();
+        //enemiesObjects[enemyCount].transform.GetChild(0).GetComponent<EnemyScript>().enabled = true;
         if (enemyCount >= enemiesObjects.Length)
             enemyCount = 0;
+        trigger = true;
+        Debug.Log("Enemy Count: " + enemyCount);
+    }
+
+    public void MoveEnemy()
+    {
+        enemiesObjects[enemyCount].transform.position = Vector3.MoveTowards(enemiesObjects[enemyCount].transform.position, enemyScript.targetPosition, Time.deltaTime * enemyScript.speed);
     }
 
 
