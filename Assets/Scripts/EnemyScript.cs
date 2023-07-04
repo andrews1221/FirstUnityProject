@@ -6,16 +6,18 @@ public class EnemyScript : MonoBehaviour
 {
     public Vector3 targetPosition = new Vector3(0,0,0);
     public float speed = 10f;
-    public int attack = 1;
-    public int health = 10;
+    public float attack = 1;
+    public float health = 10;
     public int arrowDirection;
     private Player player;
     private EnemySpawner spawner;
+    private ArrowDirection arrowScript;
     // Start is called before the first frame update
     void Start()
     {
         player =  GameObject.Find("Player").GetComponent<Player>();
         spawner = GameObject.Find("SpawnController").GetComponent<EnemySpawner>();
+        arrowScript = this.transform.GetChild(0).GetComponent<ArrowDirection>();
         arrowDirection = Random.Range(1,5);
         //Debug.Log(playerControls.GetComponent<ControlsScript>().SWIPE_DEIRECTION);
     }
@@ -28,9 +30,9 @@ public class EnemyScript : MonoBehaviour
         {
             //spawner.trigger = true;
             //Destroy(transform.parent.gameObject);
-            transform.parent.gameObject.SetActive(false);
-            spawner.trigger = false;
-            spawner.enemyCount++;
+            spawner.enemiesObjects[spawner.enemyCount].SetActive(false);
+            spawner.triggerMoveEnemy = false;
+            spawner.CountEnemies();
             spawner.SpawnEnemy();
             //this.transform.GetChild(0).GetComponent<EnemyScript>().enabled = false;
 
@@ -43,7 +45,9 @@ public class EnemyScript : MonoBehaviour
             player.swipeDirection = 0;
             arrowDirection = Random.Range(1,5);
             this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
-            health -= player.playerAttack;
+            health -= player.playerAttack*arrowScript.Convert(spawner.distanceBetweenEnemyAndPlayer);
+            spawner.triggerMoveEnemy = false;
+            spawner.pullBackEnemy = true;
 
             Debug.Log("Damage Dealt");
         }

@@ -9,7 +9,11 @@ public class ArrowDirection : MonoBehaviour
     //[SerializeField] private Sprite down;
     //[SerializeField] private Sprite left;
     //[SerializeField] private Sprite right;
+
+    public Gradient gradient;
+    [HideInInspector] public float maxDistanceBetweenEnemyAndPlayer;
     [SerializeField] private Transform arrowTransform;
+    [SerializeField] private SpriteRenderer arrowSpriteRenderer;
     private int spriteNumber;
     // Start is called before the first frame update
     void Start()
@@ -65,5 +69,20 @@ public class ArrowDirection : MonoBehaviour
         }
 
         Debug.Log("Arrow Direction " + arrowTransform.rotation.z);
+    }
+
+    public void SetArrowColor(float value)
+    {
+
+        //slider.value = value;
+        float valueToEval = Convert(value);
+
+        arrowSpriteRenderer.color = gradient.Evaluate(valueToEval);
+    }
+
+    public float Convert(float distance)
+    {
+        Debug.Log("Arrow value: " + distance / maxDistanceBetweenEnemyAndPlayer);
+        return distance / maxDistanceBetweenEnemyAndPlayer;
     }
 }

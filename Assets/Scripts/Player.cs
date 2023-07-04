@@ -8,8 +8,8 @@ public class Player : MonoBehaviour
     private Vector2 fingerUp;
     private float holdStart;
 
-    public int playerAttack = 1;
-    public int playerHealth = 10;
+    public float playerAttack = 1;
+    public float playerHealth = 10;
     public bool blocking = false;
     public bool detectSwipeOnlyAfterRelease = true;
     public int swipeDirection = 0;

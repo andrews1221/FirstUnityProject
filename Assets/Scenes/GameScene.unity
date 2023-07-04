@@ -218,8 +218,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 7499622799034298886, guid: ee0ccd5a115404741b13495fa7d64e81, type: 3}
-  trigger: 0
+  triggerMoveEnemy: 0
   numberOfEnemies: 10
+  enemyCount: 0
+  distanceBetweenEnemyAndPlayer: 0
+  enemiesObjects: []
 --- !u!4 &1235139188
 Transform:
   m_ObjectHideFlags: 0
@@ -329,7 +332,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7d925eb4f214de844b73cc908f3189c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerAttack: 1
+  playerAttack: 5
   playerHealth: 10
   blocking: 0
   detectSwipeOnlyAfterRelease: 1
