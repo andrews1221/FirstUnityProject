@@ -8,9 +8,9 @@ public class Player : MonoBehaviour
     private Vector2 fingerUp;
     private float holdStart;
 
-    public float playerAttack = 1;
-    public float playerHealth = 10;
-    public bool blocking = false;
+    public int playerAttack = 1;
+    public int playerHealth = 10;
+
     public bool detectSwipeOnlyAfterRelease = true;
     public int swipeDirection = 0;
     public float swipeThreshold = 20f;
@@ -33,10 +33,10 @@ public class Player : MonoBehaviour
                 holdStart = Time.time;
             }
 
-            if ((touch.phase == TouchPhase.Stationary) && (holdThreshold < Time.time - holdStart))
+            /*if ((touch.phase == TouchPhase.Stationary) && (holdThreshold < Time.time - holdStart))
             {
                 blocking = true;
-            }
+            }*/
 
             //Detects Swipe while finger is still moving
             if (touch.phase == TouchPhase.Moved)
@@ -53,15 +53,15 @@ public class Player : MonoBehaviour
             {
                 fingerDown = touch.position;
                 CheckSwipe();
-                blocking = false;
+                //blocking = false;
             }
         }
     }
 
     private void CheckSwipe()
     {
-        if(blocking == false)
-        {
+        //if(blocking == false)
+        //{
             //Check if Vertical swipe
             if (VerticalMove() > swipeThreshold && VerticalMove() > HorizontalValMove())
             {
@@ -97,7 +97,7 @@ public class Player : MonoBehaviour
             {
                 //Debug.Log("No Swipe!");
             }
-        }
+        //}
     }
 
     private float VerticalMove()
