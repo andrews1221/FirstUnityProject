@@ -219,10 +219,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enemyPrefab: {fileID: 7499622799034298886, guid: ee0ccd5a115404741b13495fa7d64e81, type: 3}
   triggerMoveEnemy: 0
-  numberOfEnemies: 10
+  pullBackEnemy: 0
+  numberOfEnemies: 2
   enemyCount: 0
   distanceBetweenEnemyAndPlayer: 0
   enemiesObjects: []
+  oldEnemyPosition: {x: 0, y: 0}
+  startingPosition: {x: 0, y: 0}
 --- !u!4 &1235139188
 Transform:
   m_ObjectHideFlags: 0
@@ -334,7 +337,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerAttack: 5
   playerHealth: 10
-  blocking: 0
   detectSwipeOnlyAfterRelease: 1
   swipeDirection: 0
   swipeThreshold: 20

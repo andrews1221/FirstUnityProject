@@ -1,12 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using DG.Tweening;
 
 public class Player : MonoBehaviour
 {
     private Vector2 fingerDown;
     private Vector2 fingerUp;
     private float holdStart;
+    private Camera cam;
 
     public int playerAttack = 1;
     public int playerHealth = 10;
@@ -16,6 +18,10 @@ public class Player : MonoBehaviour
     public float swipeThreshold = 20f;
     public float holdThreshold = 0.3f;
 
+    private void Start()
+    {
+        cam = Camera.main;
+    }
     // Update is called once per frame
     void Update()
     {
@@ -134,4 +140,23 @@ public class Player : MonoBehaviour
         Debug.Log("Swipe Right");
         swipeDirection = 4;
     }
+
+    public void RecieveDamage(int damage)
+    {
+        playerHealth -= damage;
+        cam.transform.DOComplete();
+        cam.transform.DOShakePosition(1f);
+    }
+
+    public void CheckPlayerHealth(EnemySpawner enemySpawner)
+    {
+        if(playerHealth <= 0)
+        {
+            enemySpawner.triggerMoveEnemy = false;
+            enemySpawner.pullBackEnemy = false;
+            enemySpawner.enemiesObjects[enemySpawner.enemyCount].SetActive(false);
+        }
+    }
+
+
 }

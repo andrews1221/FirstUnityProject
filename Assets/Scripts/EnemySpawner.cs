@@ -10,10 +10,11 @@ public class EnemySpawner : MonoBehaviour
     public int numberOfEnemies, enemyCount = 0;
     public float distanceBetweenEnemyAndPlayer;
     [HideInInspector] public GameObject[] enemiesObjects;
+    [HideInInspector] public Vector2 oldEnemyPosition, startingPosition;
     //public int numberOfSpawnPoints;
     private GameObject[] spawnersList;
     private Vector2 enemiesPoolPosition = new Vector2(40, 40);
-    private Vector2 cameraBounds, startingPosition, finalPosition;
+    private Vector2 cameraBounds, finalPosition;
     private EnemyScript enemyScript;
     private ArrowDirection arrowScript;
 
@@ -86,6 +87,11 @@ public class EnemySpawner : MonoBehaviour
         {
             enemyScript.targetPosition = finalPosition;
         }
+        else if((Vector2)enemiesObjects[enemyCount].transform.position == finalPosition)
+        {
+            enemyScript.AttackPlayer(enemyScript.attack);
+            triggerMoveEnemy = false;
+        }
         distanceBetweenEnemyAndPlayer = Vector2.Distance(enemiesObjects[enemyCount].transform.position, finalPosition);
         arrowScript.SetArrowColor(distanceBetweenEnemyAndPlayer);
     }
@@ -93,18 +99,19 @@ public class EnemySpawner : MonoBehaviour
     public void CountEnemies()
     {
         enemyCount++;
-        //if (enemyCount >= numberOfEnemies)
-        //    enemyCount = 0;
+        if (enemyCount >= numberOfEnemies)
+        {
+            enemyCount = 0;
+        }
     }
 
     private void PullBackEnemy()
     {
-        enemiesObjects[enemyCount].transform.position = Vector3.MoveTowards(enemiesObjects[enemyCount].transform.position, startingPosition, Time.deltaTime * enemyScript.speed*2);
-        if ((Vector2)enemiesObjects[enemyCount].transform.position == startingPosition)
+        enemiesObjects[enemyCount].transform.position = Vector3.MoveTowards(enemiesObjects[enemyCount].transform.position, new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + 2), Time.deltaTime * enemyScript.speed * 2);
+        if ((Vector2)enemiesObjects[enemyCount].transform.position == new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + 2))
         {
             triggerMoveEnemy = true;
             pullBackEnemy = false;
         }
-
     }
 }

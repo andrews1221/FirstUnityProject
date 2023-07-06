@@ -278,7 +278,6 @@ MonoBehaviour:
     m_ColorSpace: -1
     m_NumColorKeys: 5
     m_NumAlphaKeys: 2
-  arrowSR: {fileID: 0}
   maxDistanceBetweenEnemyAndPlayer: 0
   arrowTransform: {fileID: 1935511141390979697}
   arrowSpriteRenderer: {fileID: 5959822800236535937}

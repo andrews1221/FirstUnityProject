@@ -68,7 +68,7 @@ public class ArrowDirection : MonoBehaviour
                 break;
         }
 
-        Debug.Log("Arrow Direction " + arrowTransform.rotation.z);
+        //Debug.Log("Arrow Direction " + arrowTransform.rotation.z);
     }
 
     public void SetArrowColor(float value)
@@ -82,7 +82,7 @@ public class ArrowDirection : MonoBehaviour
 
     public float Convert(float distance)
     {
-        Debug.Log("Arrow value: " + distance / maxDistanceBetweenEnemyAndPlayer);
+        //Debug.Log("Arrow value: " + distance / maxDistanceBetweenEnemyAndPlayer);
         return distance / maxDistanceBetweenEnemyAndPlayer;
     }
 }
