@@ -9,6 +9,7 @@ public class EnemySpawner : MonoBehaviour
     public bool triggerMoveEnemy, pullBackEnemy;
     public int numberOfEnemies, enemyCount = 0;
     public float distanceBetweenEnemyAndPlayer;
+    public ProgressController progressController;
     [HideInInspector] public GameObject[] enemiesObjects;
     [HideInInspector] public Vector2 oldEnemyPosition, startingPosition;
     //public int numberOfSpawnPoints;
@@ -39,6 +40,7 @@ public class EnemySpawner : MonoBehaviour
         {
             enemiesObjects[i] = (GameObject)Instantiate(enemyPrefab, enemiesPoolPosition, Quaternion.identity);
         }
+        progressController.SetProgressBarMaxValue(numberOfEnemies);
     }
 
     private void Start()
@@ -72,13 +74,14 @@ public class EnemySpawner : MonoBehaviour
         enemiesObjects[enemyCount].SetActive(true);
         enemiesObjects[enemyCount].transform.position = spawnersList[Random.Range(0, 2)].transform.position;
         enemyScript = enemiesObjects[enemyCount].transform.GetChild(0).GetComponent<EnemyScript>();
+        DetermineEnemySpeed(enemyScript);
         arrowScript = enemiesObjects[enemyCount].transform.GetChild(0).GetChild(0).GetComponent<ArrowDirection>();
         enemyScript.targetPosition = startingPosition;
         arrowScript.maxDistanceBetweenEnemyAndPlayer = Vector2.Distance(enemiesObjects[enemyCount].transform.position, finalPosition);
         //enemiesObjects[enemyCount].transform.GetChild(0).GetComponent<EnemyScript>().enabled = true;
         triggerMoveEnemy = true;
         Debug.Log("Enemy Count: " + enemyCount);
-}
+    }
 
     public void MoveEnemy()
     {
@@ -113,5 +116,49 @@ public class EnemySpawner : MonoBehaviour
             triggerMoveEnemy = true;
             pullBackEnemy = false;
         }
+    }
+
+    private void DetermineEnemySpeed(EnemyScript enemy)
+    {
+        Debug.Log("Enemy Ratio: " + (float)enemyCount / (float)numberOfEnemies);
+        for (float i = 0; i <= 1; i += 0.1f)
+        {
+            //if (i == 0 || (float)enemyCount / (float)numberOfEnemies <= 0.1f)
+            //{
+            //    Debug.Log("Speed Increased");
+            //    //enemy.speed = enemy.initialSpeed;
+            //    break;
+            //}
+            if ((float)enemyCount / (float)numberOfEnemies > i && (float)enemyCount / (float)numberOfEnemies <= (i + 0.1f))
+            {
+                enemy.speed = enemy.initialSpeed*(1 + i);
+                Debug.Log("Speed Increased " + enemy.speed);
+                break;
+            }
+        }
+        //    Debug.Log("Enemy Ratio: " + (float)enemyCount / (float)numberOfEnemies);
+        //    if ((float)enemyCount / (float)numberOfEnemies <= 0.1f)
+        //    {
+        //        Debug.Log("Speed Increased");
+        //        enemy.speed = enemy.initialSpeed;
+        //    }
+        //    else if ((float) enemyCount / (float)numberOfEnemies > 0.1f && (float)enemyCount / (float)numberOfEnemies <= 0.2f)
+        //    {
+        //        Debug.Log("Speed Increased");
+        //        enemy.speed = enemy.initialSpeed * 1.1f;
+        //    }
+        //    else if ((float)enemyCount / (float)numberOfEnemies > 0.2f && (float)enemyCount / (float)numberOfEnemies <= 0.3f)
+        //    {
+        //        Debug.Log("Speed Increased");
+        //        enemy.speed = enemy.initialSpeed * 1.2f;
+        //    }
+        //    else if ((float)enemyCount / (float)numberOfEnemies > 0.3f && (float) enemyCount / (float)numberOfEnemies <= 0.4f)
+        //    {
+        //        Debug.Log("Speed Increased");
+        //        enemy.speed = enemy.initialSpeed * 1.3f;
+        //    }
+        //    else
+        //        enemy.speed = enemy.initialSpeed * 1.5f;
+        //}
     }
 }

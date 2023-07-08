@@ -13,7 +13,7 @@ public class Player : MonoBehaviour
     public int playerAttack = 1;
     public int playerHealth = 10;
 
-    public bool detectSwipeOnlyAfterRelease = true;
+    [HideInInspector] public bool detectSwipeOnlyAfterRelease = true, checkSwipe = false;
     public int swipeDirection = 0;
     public float swipeThreshold = 20f;
     public float holdThreshold = 0.3f;
@@ -59,6 +59,7 @@ public class Player : MonoBehaviour
             {
                 fingerDown = touch.position;
                 CheckSwipe();
+                checkSwipe = true;
                 //blocking = false;
             }
         }

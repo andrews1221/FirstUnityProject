@@ -6,7 +6,8 @@ using DG.Tweening;
 public class EnemyScript : MonoBehaviour
 {
     public Vector3 targetPosition = new Vector3(0,0,0);
-    public float speed = 10f;
+    public float speed;
+    [HideInInspector] public float initialSpeed;
     public int attack = 1;
     public int health = 10;
     public int arrowDirection;
@@ -22,6 +23,8 @@ public class EnemyScript : MonoBehaviour
         arrowScript = this.transform.GetChild(0).GetComponent<ArrowDirection>();
         arrowDirection = Random.Range(1,5);
         maxHealth = health;
+        initialSpeed = speed;
+        Debug.Log("Initial speed " + initialSpeed);
         //Debug.Log(playerControls.GetComponent<ControlsScript>().SWIPE_DEIRECTION);
     }
 
@@ -29,28 +32,17 @@ public class EnemyScript : MonoBehaviour
     void Update()
     {
         //spawner.trigger = false;
-        if (health<1)
-        {
-            //spawner.trigger = true;
-            //Destroy(transform.parent.gameObject);
-            spawner.enemiesObjects[spawner.enemyCount].SetActive(false);
-            health = maxHealth;
-            spawner.triggerMoveEnemy = false;
-            spawner.CountEnemies();
-            spawner.SpawnEnemy();
-            //this.transform.GetChild(0).GetComponent<EnemyScript>().enabled = false;
-
-            Debug.Log("Enemy Killed");
-        }
 
         //transform.GetComponentInParent<Transform>().position = Vector3.MoveTowards(transform.GetComponentInParent<Transform>().position, targetPosition, Time.deltaTime*speed);
         if (player.swipeDirection == arrowDirection)
         {
             player.swipeDirection = 0;
+            player.checkSwipe = false;
             arrowDirection = Random.Range(1,5);
             this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
             health -= DetermineDamageToEnemy();//(int)Mathf.Round(player.playerAttack*arrowScript.Convert(spawner.distanceBetweenEnemyAndPlayer)*10);
-            if(spawner.enemiesObjects[spawner.enemyCount].transform.position.y <= 0)
+            CheckEnemyHealth();
+            if (spawner.enemiesObjects[spawner.enemyCount].transform.position.y <= 0)
             {
                 spawner.triggerMoveEnemy = false;
                 spawner.pullBackEnemy = true;
@@ -60,14 +52,15 @@ public class EnemyScript : MonoBehaviour
 
             Debug.Log("Player: Damage Dealt");
         }
-        else if (player.swipeDirection != 0)
+        else if (player.swipeDirection != arrowDirection && player.checkSwipe)
         {
             player.swipeDirection = 0;
+            player.checkSwipe = false;
             arrowDirection = Random.Range(1,5);
             this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
             player.playerHealth -= attack;
 
-            Debug.Log("Player: Damage Recieved");
+            Debug.Log("Player: Damage Recieved - Wrong Swipe");
         }
     }
 
@@ -107,5 +100,23 @@ public class EnemyScript : MonoBehaviour
             spawner.pullBackEnemy = true;
             player.CheckPlayerHealth(spawner);
         });
+    }
+
+    private void CheckEnemyHealth()
+    {
+        if (health < 1)
+        {
+            //spawner.trigger = true;
+            //Destroy(transform.parent.gameObject);
+            spawner.enemiesObjects[spawner.enemyCount].SetActive(false);
+            health = maxHealth;
+            spawner.triggerMoveEnemy = false;
+            spawner.progressController.UpdateProgressBar();
+            spawner.CountEnemies();
+            spawner.SpawnEnemy();
+            //this.transform.GetChild(0).GetComponent<EnemyScript>().enabled = false;
+
+            Debug.Log("Enemy Killed");
+        }
     }
 }
