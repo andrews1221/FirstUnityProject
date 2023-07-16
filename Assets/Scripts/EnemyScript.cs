@@ -119,4 +119,6 @@ public class EnemyScript : MonoBehaviour
             Debug.Log("Enemy Killed");
         }
     }
+
+    
 }

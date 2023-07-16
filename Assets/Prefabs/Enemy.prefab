@@ -100,9 +100,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   targetPosition: {x: 0, y: 0, z: 0}
   speed: 2
+  initialSpeed: 0
   attack: 1
   health: 10
   arrowDirection: 0
+  dot1: {fileID: 0}
+  dot2: {fileID: 0}
+  dot3: {fileID: 0}
+  start: 0
+  end: 0
+  blockSuccess: 0
 --- !u!1 &7499622799034298886
 GameObject:
   m_ObjectHideFlags: 0
