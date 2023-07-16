@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using DG.Tweening;
 
 public class Player : MonoBehaviour
@@ -8,19 +9,26 @@ public class Player : MonoBehaviour
     private Vector2 fingerDown;
     private Vector2 fingerUp;
     private float holdStart;
+    private int initialPlayerAttack;
     private Camera cam;
 
-    public int playerAttack = 1;
-    public int playerHealth = 10;
+    public int playerAttack;
+    public int playerHealth;
 
     [HideInInspector] public bool detectSwipeOnlyAfterRelease = true, checkSwipe = false;
+    public bool fire, water, earth, metal, wood;
+    public string material;
     public int swipeDirection = 0;
     public float swipeThreshold = 20f;
     public float holdThreshold = 0.3f;
+    public float swordRotationOriginalZ;
+    public Image swordImg;
 
-    private void Start()
+    private void Awake()
     {
         cam = Camera.main;
+        initialPlayerAttack = playerAttack;
+        Debug.Log("Initial Attack: " + initialPlayerAttack);
     }
     // Update is called once per frame
     void Update()
@@ -122,24 +130,28 @@ public class Player : MonoBehaviour
     {
         Debug.Log("Swipe UP");
         swipeDirection = 1;
+        MoveSword(-15f);
     }
 
     void OnSwipeDown()
     {
         Debug.Log("Swipe Down");
         swipeDirection = 2;
+        MoveSword(15f);
     }
 
     void OnSwipeLeft()
     {
         Debug.Log("Swipe Left");
         swipeDirection = 3;
+        MoveSword(15f);
     }
 
     void OnSwipeRight()
     {
         Debug.Log("Swipe Right");
         swipeDirection = 4;
+        MoveSword(-15f);
     }
 
     public void RecieveDamage(int damage)
@@ -159,5 +171,120 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void DeterminePlayerAttackBasedOnMaterial(string playerMaterial, string enemyMaterial)
+    {
+        switch (playerMaterial)
+        {
+            case "fire":
+                switch (enemyMaterial)
+                {
+                    case "fire":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1);
+                        break;
+                    case "metal":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1.5f);
+                        break;
+                    case "wood":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1.25f);
+                        break;
+                    case "earth":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 0.75f);
+                        break;
+                    case "water":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 0.5f);
+                        break;
+                }
+                break;
+            case "metal":
+                switch (enemyMaterial)
+                {
+                    case "fire":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 0.5f);
+                        break;
+                    case "metal":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1);
+                        break;
+                    case "wood":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1.5f);
+                        break;
+                    case "earth":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1.25f);
+                        break;
+                    case "water":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 0.75f);
+                        break;
+                }
+                break;
+            case "wood":
+                switch (enemyMaterial)
+                {
+                    case "fire":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 0.75f);
+                        break;
+                    case "metal":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 0.5f);
+                        break;
+                    case "wood":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1f);
+                        break;
+                    case "earth":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1.5f);
+                        break;
+                    case "water":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1.25f);
+                        break;
+                }
+                break;
+            case "earth":
+                switch (enemyMaterial)
+                {
+                    case "fire":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1.25f);
+                        break;
+                    case "metal":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 0.75f);
+                        break;
+                    case "wood":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 0.5f);
+                        break;
+                    case "earth":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1f);
+                        break;
+                    case "water":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1.5f);
+                        break;
+                }
+                break;
+            case "water":
+                switch (enemyMaterial)
+                {
+                    case "fire":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1.5f);
+                        break;
+                    case "metal":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1.25f);
+                        break;
+                    case "wood":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 0.75f);
+                        break;
+                    case "earth":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 0.5f);
+                        break;
+                    case "water":
+                        playerAttack = Mathf.RoundToInt(initialPlayerAttack * 1f);
+                        break;
+                }
+                break;
+        }
 
+        Debug.Log(playerMaterial + " => " + enemyMaterial + ": " + playerAttack);
+    }
+
+    private void MoveSword(float rotate)
+    {
+        swordImg.transform.DOComplete();
+        swordImg.transform.DORotate(new Vector3(swordImg.transform.rotation.x, swordImg.transform.rotation.y, swordRotationOriginalZ+rotate), 0.5f).OnComplete(() => {
+            swordImg.transform.DORotate(new Vector3(swordImg.transform.rotation.x, swordImg.transform.rotation.y, swordRotationOriginalZ), 0.5f);
+        });
+    }
 }

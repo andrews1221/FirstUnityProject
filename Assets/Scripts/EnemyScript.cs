@@ -5,12 +5,13 @@ using DG.Tweening;
 
 public class EnemyScript : MonoBehaviour
 {
-    public Vector3 targetPosition = new Vector3(0,0,0);
+    public Vector3 targetPosition = new Vector3(0,0,0), initialSize, finalSize;
     public float speed;
+    public string material;
     [HideInInspector] public float initialSpeed;
+    public bool fire, water, earth, metal, wood;
     public int attack = 1;
-    public int health = 10;
-    public int arrowDirection;
+    public int health = 10, arrowDirection;
     private Player player;
     private EnemySpawner spawner;
     private int maxHealth;
@@ -58,7 +59,8 @@ public class EnemyScript : MonoBehaviour
             player.checkSwipe = false;
             arrowDirection = Random.Range(1,5);
             this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
-            player.playerHealth -= attack;
+            //player.playerHealth -= attack;
+            player.RecieveDamage(attack);
 
             Debug.Log("Player: Damage Recieved - Wrong Swipe");
         }
@@ -118,5 +120,11 @@ public class EnemyScript : MonoBehaviour
 
             Debug.Log("Enemy Killed");
         }
+    }
+
+    public void SetEnemyScale(float distance)
+    {
+        float sizeToAdd = Vector3.Distance(finalSize, initialSize)*(1f-distance/arrowScript.maxDistanceBetweenEnemyAndPlayer);
+        this.transform.localScale = new Vector2(initialSize.x+sizeToAdd, initialSize.y+sizeToAdd);
     }
 }
