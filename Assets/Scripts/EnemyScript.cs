@@ -34,7 +34,7 @@ public class EnemyScript : MonoBehaviour
         //spawner.trigger = false;
 
         //transform.GetComponentInParent<Transform>().position = Vector3.MoveTowards(transform.GetComponentInParent<Transform>().position, targetPosition, Time.deltaTime*speed);
-        if (player.swipeDirection == arrowDirection)
+        if (player.swipeDirection == arrowDirection && !spawner.blockphaseController.blockPhase)
         {
             player.swipeDirection = 0;
             player.checkSwipe = false;
@@ -52,7 +52,7 @@ public class EnemyScript : MonoBehaviour
 
             Debug.Log("Player: Damage Dealt");
         }
-        else if (player.swipeDirection != arrowDirection && player.checkSwipe)
+        else if (player.swipeDirection != arrowDirection && player.checkSwipe && !spawner.blockphaseController.blockPhase)
         {
             player.swipeDirection = 0;
             player.checkSwipe = false;
@@ -60,7 +60,7 @@ public class EnemyScript : MonoBehaviour
             this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
             player.playerHealth -= attack;
 
-            Debug.Log("Player: Damage Recieved - Wrong Swipe");
+            Debug.Log("Player: Damage Recieved - Wrong Swipe; Block Phase: " + spawner.blockphaseController.blockPhase);
         }
     }
 
@@ -88,17 +88,23 @@ public class EnemyScript : MonoBehaviour
 
     public void AttackPlayer(int damage)
     {
-        player.playerHealth -= damage;
         Camera.main.transform.DOComplete();
         //Camera.main.transform.DOShakePosition(1f, new Vector3(1f, 0f, 0f), 10, 0);
         //this.transform.DOScale(1.2f, 0.5f).OnComplete(() => {
         //    this.transform.DOScale(1f, 0.5f);
         //    spawner.pullBackEnemy = true;
         //});
-        this.transform.DORotate(new Vector3(0, 60f, 0), 0.5f).OnComplete(() => {
+        this.transform.DORotate(new Vector3(0, 60f, 0), 5f).OnComplete(() => {
             this.transform.DORotate(new Vector3(0, 0, 0), 0.5f);
-            spawner.pullBackEnemy = true;
-            player.CheckPlayerHealth(spawner);
+            if(spawner.blockphaseController.blockPhase)
+            {
+                player.playerHealth -= damage;
+                spawner.pullBackEnemy = true;
+                spawner.blockphaseController.SetBlockButtons(false);
+                spawner.blockphaseController.blockPhase = false;
+                spawner.blockphaseController.currentBtn = 0;
+                player.CheckPlayerHealth(spawner);
+            }
         });
     }
 

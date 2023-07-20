@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class BlockPhase : MonoBehaviour
 {
@@ -11,16 +12,25 @@ public class BlockPhase : MonoBehaviour
     public bool start = false;
     public bool end = false;
     public bool blockSuccess = false;
+
+    public List<Button> dotBtnList = new List<Button>();
+    public int currentBtn = 0;
+    public bool blockPhase;
+    public EnemySpawner spawner;
+    public Canvas canvas;
+    private Vector3 canvasBounds;
+
     // Start is called before the first frame update
     void Start()
     {
-        
+        canvasBounds = new Vector2(canvas.GetComponent<RectTransform>().rect.width, canvas.GetComponent<RectTransform>().rect.height);
+        Debug.Log("Canvas bounds: " + canvasBounds);
     }
 
     // Update is called once per frame
     void Update()
     {
-        BlockingPhase(start, end, blockSuccess);
+        //BlockingPhase(start, end, blockSuccess);
     }
     private void BlockingPhase(bool start, bool end, bool blockSuccess){
         if (start)
@@ -54,6 +64,57 @@ public class BlockPhase : MonoBehaviour
                     Debug.Log("Dot Clikced");
                 }
             }
+        }
+    }
+
+    public void SpawnBlockButtons()
+    {
+        if (blockPhase)
+        {
+            for (int i = 0; i < dotBtnList.Count; i++)
+            {
+                if (i == currentBtn)
+                {
+                    dotBtnList[currentBtn].GetComponent<RectTransform>().localPosition = new Vector2(Random.Range(-canvasBounds.x/2 + dotBtnList[currentBtn].GetComponent<RectTransform>().rect.width,
+                        canvasBounds.x/2 - dotBtnList[currentBtn].GetComponent<RectTransform>().rect.width), Random.Range(-canvasBounds.y/2 + dotBtnList[currentBtn].GetComponent<RectTransform>().rect.height,
+                        canvasBounds.y/ - dotBtnList[currentBtn].GetComponent<RectTransform>().rect.height));
+                    dotBtnList[currentBtn].gameObject.SetActive(true);
+                    //Debug.Log("Button " + currentBtn + " spawned");
+                }
+                else if (i != currentBtn)
+                {
+                    dotBtnList[i].gameObject.SetActive(false);
+                    //Debug.Log("Button " + i + " deactivated");
+                }
+            }
+        }
+    }
+
+    public void OnBlockButtonPressed()
+    {
+        if (blockPhase)
+        {
+            currentBtn++;
+            if (currentBtn == dotBtnList.Count)
+            {
+                currentBtn = 0;
+                blockPhase = false;
+                SetBlockButtons(false);
+                spawner.pullBackEnemy = true;
+
+                Debug.Log("3 Dots Clicked");
+                return;
+            }
+            SpawnBlockButtons();
+        }
+    }
+
+    public void SetBlockButtons(bool state)
+    {
+        for (int i = 0; i < dotBtnList.Count; i++)
+        {
+            dotBtnList[i].gameObject.SetActive(state);
+            Debug.Log("Button " + i + " " + state);
         }
     }
 }

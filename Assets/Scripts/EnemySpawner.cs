@@ -10,6 +10,7 @@ public class EnemySpawner : MonoBehaviour
     public int numberOfEnemies, enemyCount = 0;
     public float distanceBetweenEnemyAndPlayer;
     public ProgressController progressController;
+    public BlockPhase blockphaseController;
     [HideInInspector] public GameObject[] enemiesObjects;
     [HideInInspector] public Vector2 oldEnemyPosition, startingPosition;
     //public int numberOfSpawnPoints;
@@ -92,6 +93,8 @@ public class EnemySpawner : MonoBehaviour
         }
         else if((Vector2)enemiesObjects[enemyCount].transform.position == finalPosition)
         {
+            blockphaseController.blockPhase = true;
+            blockphaseController.SpawnBlockButtons();
             enemyScript.AttackPlayer(enemyScript.attack);
             triggerMoveEnemy = false;
         }
