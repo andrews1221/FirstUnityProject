@@ -15,7 +15,7 @@ public class Player : MonoBehaviour
     public int playerAttack;
     public int playerHealth;
 
-    [HideInInspector] public bool detectSwipeOnlyAfterRelease = true, checkSwipe = false;
+    public bool detectSwipeOnlyAfterRelease = true, checkSwipe = false;
     public bool fire, water, earth, metal, wood;
     public string material;
     public int swipeDirection = 0;
@@ -67,7 +67,6 @@ public class Player : MonoBehaviour
             {
                 fingerDown = touch.position;
                 CheckSwipe();
-                checkSwipe = true;
                 //blocking = false;
             }
         }
@@ -77,42 +76,46 @@ public class Player : MonoBehaviour
     {
         //if(blocking == false)
         //{
-            //Check if Vertical swipe
-            if (VerticalMove() > swipeThreshold && VerticalMove() > HorizontalValMove())
-            {
-                //Debug.Log("Vertical");
-                if (fingerDown.y - fingerUp.y > 0)//up swipe
-                {
-                    OnSwipeUp();
-                }
-                else if (fingerDown.y - fingerUp.y < 0)//Down swipe
-                {
-                    OnSwipeDown();
-                }
-                fingerUp = fingerDown;
-            }
+        //Check if Vertical swipe
 
-            //Check if Horizontal swipe
-            else if (HorizontalValMove() > swipeThreshold && HorizontalValMove() > VerticalMove())
-            {
-                //Debug.Log("Horizontal");
-                if (fingerDown.x - fingerUp.x > 0)//Right swipe
-                {
-                    OnSwipeRight();
-                }
-                else if (fingerDown.x - fingerUp.x < 0)//Left swipe
-                {
-                    OnSwipeLeft();
-                }
-                fingerUp = fingerDown;
-            }
-
-            //No Movement at-all
-            else
-            {
-                //Debug.Log("No Swipe!");
-            }
         //}
+
+        if (VerticalMove() > swipeThreshold && VerticalMove() > HorizontalValMove())
+        {
+            //Debug.Log("Vertical");
+            if (fingerDown.y - fingerUp.y > 0)//up swipe
+            {
+                OnSwipeUp();
+            }
+            else if (fingerDown.y - fingerUp.y < 0)//Down swipe
+            {
+                OnSwipeDown();
+            }
+            fingerUp = fingerDown;
+            checkSwipe = true;
+        }
+
+        //Check if Horizontal swipe
+        else if (HorizontalValMove() > swipeThreshold && HorizontalValMove() > VerticalMove())
+        {
+            //Debug.Log("Horizontal");
+            if (fingerDown.x - fingerUp.x > 0)//Right swipe
+            {
+                OnSwipeRight();
+            }
+            else if (fingerDown.x - fingerUp.x < 0)//Left swipe
+            {
+                OnSwipeLeft();
+            }
+            fingerUp = fingerDown;
+            checkSwipe = true;
+        }
+
+        //No Movement at-all
+        else
+        {
+            //Debug.Log("No Swipe!");
+        }
     }
 
     private float VerticalMove()

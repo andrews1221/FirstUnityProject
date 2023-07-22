@@ -82,7 +82,7 @@ public class EnemySpawner : MonoBehaviour
         arrowScript.maxDistanceBetweenEnemyAndPlayer = Vector2.Distance(enemiesObjects[enemyCount].transform.position, finalPosition);
         //enemiesObjects[enemyCount].transform.GetChild(0).GetComponent<EnemyScript>().enabled = true;
         triggerMoveEnemy = true;
-        Debug.Log("Enemy Count: " + enemyCount);
+        //Debug.Log("Enemy Count: " + enemyCount);
     }
 
     public void MoveEnemy()
@@ -138,7 +138,7 @@ public class EnemySpawner : MonoBehaviour
             if ((float)enemyCount / (float)numberOfEnemies > i && (float)enemyCount / (float)numberOfEnemies <= (i + 0.1f))
             {
                 enemy.speed = enemy.initialSpeed*(1 + i);
-                Debug.Log("Speed Increased " + enemy.speed);
+                //Debug.Log("Speed Increased " + enemy.speed);
                 break;
             }
         }

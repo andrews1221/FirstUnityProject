@@ -63,6 +63,7 @@ public class EnemyScript : MonoBehaviour
             player.RecieveDamage(attack);
 
             Debug.Log("Player: Damage Recieved - Wrong Swipe");
+            Debug.Log("Player Swipe Direction: " + player.swipeDirection + " and Arrow Direction: " + arrowDirection);
         }
     }
 
