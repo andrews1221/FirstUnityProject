@@ -18,7 +18,7 @@ public class ArrowDirection : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        spriteNumber = GameObject.Find("EnemySprite").GetComponent<EnemyScript>().arrowDirection;
+        spriteNumber = this.transform.parent.GetComponent<EnemyScript>().arrowDirection;
         ChooseArrowDirection(spriteNumber);
     }
 

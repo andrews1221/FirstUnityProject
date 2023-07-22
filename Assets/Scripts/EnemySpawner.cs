@@ -78,6 +78,10 @@ public class EnemySpawner : MonoBehaviour
         DetermineEnemySpeed(enemyScript);
         player.DeterminePlayerAttackBasedOnMaterial(player.material, enemyScript.material);
         arrowScript = enemiesObjects[enemyCount].transform.GetChild(0).GetChild(0).GetComponent<ArrowDirection>();
+        //Assign new direction
+        enemyScript.arrowDirection = Random.Range(1, 5);
+        arrowScript.ChooseArrowDirection(enemyScript.arrowDirection);
+
         enemyScript.targetPosition = startingPosition;
         arrowScript.maxDistanceBetweenEnemyAndPlayer = Vector2.Distance(enemiesObjects[enemyCount].transform.position, finalPosition);
         //enemiesObjects[enemyCount].transform.GetChild(0).GetComponent<EnemyScript>().enabled = true;

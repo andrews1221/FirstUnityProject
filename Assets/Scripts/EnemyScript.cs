@@ -39,8 +39,6 @@ public class EnemyScript : MonoBehaviour
         {
             player.swipeDirection = 0;
             player.checkSwipe = false;
-            arrowDirection = Random.Range(1,5);
-            this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
             health -= DetermineDamageToEnemy();//(int)Mathf.Round(player.playerAttack*arrowScript.Convert(spawner.distanceBetweenEnemyAndPlayer)*10);
             CheckEnemyHealth();
             if (spawner.enemiesObjects[spawner.enemyCount].transform.position.y <= 0)
@@ -57,7 +55,7 @@ public class EnemyScript : MonoBehaviour
         {
             player.swipeDirection = 0;
             player.checkSwipe = false;
-            arrowDirection = Random.Range(1,5);
+            arrowDirection = Random.Range(1, 5);
             this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
             //player.playerHealth -= attack;
             player.RecieveDamage(attack);
@@ -120,6 +118,11 @@ public class EnemyScript : MonoBehaviour
             //this.transform.GetChild(0).GetComponent<EnemyScript>().enabled = false;
 
             Debug.Log("Enemy Killed");
+        }
+        else
+        {
+            arrowDirection = Random.Range(1, 5);
+            this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
         }
     }
 
