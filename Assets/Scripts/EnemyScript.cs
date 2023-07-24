@@ -5,12 +5,13 @@ using DG.Tweening;
 
 public class EnemyScript : MonoBehaviour
 {
-    public Vector3 targetPosition = new Vector3(0,0,0);
+    public Vector3 targetPosition = new Vector3(0,0,0), initialSize, finalSize;
     public float speed;
+    public string material;
     [HideInInspector] public float initialSpeed;
+    public bool fire, water, earth, metal, wood;
     public int attack = 1;
-    public int health = 10;
-    public int arrowDirection;
+    public int health = 10, arrowDirection;
     private Player player;
     private EnemySpawner spawner;
     private int maxHealth;
@@ -38,8 +39,6 @@ public class EnemyScript : MonoBehaviour
         {
             player.swipeDirection = 0;
             player.checkSwipe = false;
-            arrowDirection = Random.Range(1,5);
-            this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
             health -= DetermineDamageToEnemy();//(int)Mathf.Round(player.playerAttack*arrowScript.Convert(spawner.distanceBetweenEnemyAndPlayer)*10);
             CheckEnemyHealth();
             if (spawner.enemiesObjects[spawner.enemyCount].transform.position.y <= 0)
@@ -56,9 +55,10 @@ public class EnemyScript : MonoBehaviour
         {
             player.swipeDirection = 0;
             player.checkSwipe = false;
-            arrowDirection = Random.Range(1,5);
+            arrowDirection = Random.Range(1, 5);
             this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
-            player.playerHealth -= attack;
+            //player.playerHealth -= attack;
+            player.RecieveDamage(attack);
 
             Debug.Log("Player: Damage Recieved - Wrong Swipe; Block Phase: " + spawner.blockphaseController.blockPhase);
         }
@@ -124,6 +124,17 @@ public class EnemyScript : MonoBehaviour
 
             Debug.Log("Enemy Killed");
         }
+        else
+        {
+            arrowDirection = Random.Range(1, 5);
+            this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
+        }
+    }
+
+    public void SetEnemyScale(float distance)
+    {
+        float sizeToAdd = Vector3.Distance(finalSize, initialSize)*(1f-distance/arrowScript.maxDistanceBetweenEnemyAndPlayer);
+        this.transform.localScale = new Vector2(initialSize.x+sizeToAdd, initialSize.y+sizeToAdd);
     }
 
     

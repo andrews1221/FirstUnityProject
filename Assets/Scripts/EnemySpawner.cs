@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemySpawner : MonoBehaviour
 {
     [SerializeField] private GameObject enemyPrefab;
+    [SerializeField] private Player player;
     //public bool trigger;
     public bool triggerMoveEnemy, pullBackEnemy;
     public int numberOfEnemies, enemyCount = 0;
@@ -76,12 +77,17 @@ public class EnemySpawner : MonoBehaviour
         enemiesObjects[enemyCount].transform.position = spawnersList[Random.Range(0, 2)].transform.position;
         enemyScript = enemiesObjects[enemyCount].transform.GetChild(0).GetComponent<EnemyScript>();
         DetermineEnemySpeed(enemyScript);
+        player.DeterminePlayerAttackBasedOnMaterial(player.material, enemyScript.material);
         arrowScript = enemiesObjects[enemyCount].transform.GetChild(0).GetChild(0).GetComponent<ArrowDirection>();
+        //Assign new direction
+        enemyScript.arrowDirection = Random.Range(1, 5);
+        arrowScript.ChooseArrowDirection(enemyScript.arrowDirection);
+
         enemyScript.targetPosition = startingPosition;
         arrowScript.maxDistanceBetweenEnemyAndPlayer = Vector2.Distance(enemiesObjects[enemyCount].transform.position, finalPosition);
         //enemiesObjects[enemyCount].transform.GetChild(0).GetComponent<EnemyScript>().enabled = true;
         triggerMoveEnemy = true;
-        Debug.Log("Enemy Count: " + enemyCount);
+        //Debug.Log("Enemy Count: " + enemyCount);
     }
 
     public void MoveEnemy()
@@ -100,6 +106,7 @@ public class EnemySpawner : MonoBehaviour
         }
         distanceBetweenEnemyAndPlayer = Vector2.Distance(enemiesObjects[enemyCount].transform.position, finalPosition);
         arrowScript.SetArrowColor(distanceBetweenEnemyAndPlayer);
+        enemyScript.SetEnemyScale(distanceBetweenEnemyAndPlayer);
     }
 
     public void CountEnemies()
@@ -119,6 +126,9 @@ public class EnemySpawner : MonoBehaviour
             triggerMoveEnemy = true;
             pullBackEnemy = false;
         }
+        distanceBetweenEnemyAndPlayer = Vector2.Distance(enemiesObjects[enemyCount].transform.position, finalPosition);
+        arrowScript.SetArrowColor(distanceBetweenEnemyAndPlayer);
+        enemyScript.SetEnemyScale(distanceBetweenEnemyAndPlayer);
     }
 
     private void DetermineEnemySpeed(EnemyScript enemy)
@@ -135,7 +145,7 @@ public class EnemySpawner : MonoBehaviour
             if ((float)enemyCount / (float)numberOfEnemies > i && (float)enemyCount / (float)numberOfEnemies <= (i + 0.1f))
             {
                 enemy.speed = enemy.initialSpeed*(1 + i);
-                Debug.Log("Speed Increased " + enemy.speed);
+                //Debug.Log("Speed Increased " + enemy.speed);
                 break;
             }
         }
