@@ -101,6 +101,7 @@ public class BlockPhase : MonoBehaviour
                 blockPhase = false;
                 SetBlockButtons(false);
                 spawner.pullBackEnemy = true;
+                spawner.enemiesObjects[spawner.enemyCount].transform.rotation = Quaternion.identity;
 
                 Debug.Log("3 Dots Clicked");
                 return;
