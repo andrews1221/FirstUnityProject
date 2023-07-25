@@ -137,5 +137,10 @@ public class EnemyScript : MonoBehaviour
         this.transform.localScale = new Vector2(initialSize.x+sizeToAdd, initialSize.y+sizeToAdd);
     }
 
+    public void StopRotationAnimation()
+    {
+        this.transform.DOKill();
+    }
+
     
 }

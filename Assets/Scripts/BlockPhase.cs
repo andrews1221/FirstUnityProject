@@ -101,7 +101,8 @@ public class BlockPhase : MonoBehaviour
                 blockPhase = false;
                 SetBlockButtons(false);
                 spawner.pullBackEnemy = true;
-                spawner.enemiesObjects[spawner.enemyCount].transform.rotation = Quaternion.identity;
+                spawner.enemiesObjects[spawner.enemyCount].transform.GetChild(0).GetComponent<EnemyScript>().StopRotationAnimation();//EnemyScript is attached to a child
+                spawner.enemiesObjects[spawner.enemyCount].transform.GetChild(0).transform.rotation = Quaternion.identity;
 
                 Debug.Log("3 Dots Clicked");
                 return;
