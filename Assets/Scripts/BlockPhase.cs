@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using DG.Tweening;
 
 public class BlockPhase : MonoBehaviour
 {
@@ -77,8 +78,9 @@ public class BlockPhase : MonoBehaviour
                 {
                     dotBtnList[currentBtn].GetComponent<RectTransform>().localPosition = new Vector2(Random.Range(-canvasBounds.x/2 + dotBtnList[currentBtn].GetComponent<RectTransform>().rect.width,
                         canvasBounds.x/2 - dotBtnList[currentBtn].GetComponent<RectTransform>().rect.width), Random.Range(-canvasBounds.y/2 + dotBtnList[currentBtn].GetComponent<RectTransform>().rect.height,
-                        canvasBounds.y/ - dotBtnList[currentBtn].GetComponent<RectTransform>().rect.height));
+                        canvasBounds.y/2 - dotBtnList[currentBtn].GetComponent<RectTransform>().rect.height));
                     dotBtnList[currentBtn].gameObject.SetActive(true);
+                    AnimateButton(dotBtnList[currentBtn]);
                     //Debug.Log("Button " + currentBtn + " spawned");
                 }
                 else if (i != currentBtn)
@@ -118,5 +120,14 @@ public class BlockPhase : MonoBehaviour
             dotBtnList[i].gameObject.SetActive(state);
             Debug.Log("Button " + i + " " + state);
         }
+    }
+
+    private void AnimateButton(Button button)
+    {
+        button.transform.DOComplete();
+        button.transform.DOScale(1.2f, 0.4f).OnComplete(() =>
+        {
+            button.transform.DOScale(1f, 0.4f);
+        });
     }
 }

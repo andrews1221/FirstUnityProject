@@ -8,13 +8,13 @@ public class EnemyScript : MonoBehaviour
     public Vector3 targetPosition = new Vector3(0,0,0), initialSize, finalSize;
     public float speed;
     public string material;
+    public string role;//can be "enemy", "miniBoss", "boss".
     [HideInInspector] public float initialSpeed;
     public bool fire, water, earth, metal, wood;
     public int attack = 1;
-    public int health = 10, arrowDirection;
+    public int health = 10, arrowDirection, number, maxHealth;
     private Player player;
     private EnemySpawner spawner;
-    private int maxHealth;
     private ArrowDirection arrowScript;
     // Start is called before the first frame update
     void Start()
@@ -22,7 +22,7 @@ public class EnemyScript : MonoBehaviour
         player =  GameObject.Find("Player").GetComponent<Player>();
         spawner = GameObject.Find("SpawnController").GetComponent<EnemySpawner>();
         arrowScript = this.transform.GetChild(0).GetComponent<ArrowDirection>();
-        arrowDirection = Random.Range(1,5);
+        //arrowDirection = Random.Range(1,5);
         maxHealth = health;
         initialSpeed = speed;
         Debug.Log("Initial speed " + initialSpeed);
@@ -41,22 +41,19 @@ public class EnemyScript : MonoBehaviour
             player.checkSwipe = false;
             health -= DetermineDamageToEnemy();//(int)Mathf.Round(player.playerAttack*arrowScript.Convert(spawner.distanceBetweenEnemyAndPlayer)*10);
             CheckEnemyHealth();
-            if (spawner.enemiesObjects[spawner.enemyCount].transform.position.y <= 0)
-            {
-                spawner.triggerMoveEnemy = false;
-                spawner.pullBackEnemy = true;
-                spawner.oldEnemyPosition = spawner.enemiesObjects[spawner.enemyCount].transform.position;
-            }
+            spawner.CheckForPullBack();
             //spawner.oldEnemyPosition = spawner.enemiesObjects[spawner.enemyCount].transform.position;
 
             Debug.Log("Player: Damage Dealt");
+            return;
         }
         else if (player.swipeDirection != arrowDirection && player.checkSwipe && !spawner.blockphaseController.blockPhase)
         {
+            Debug.Log("Swipe Direction: " + player.swipeDirection + " and Arrow Direction: " + arrowDirection);
             player.swipeDirection = 0;
             player.checkSwipe = false;
             arrowDirection = Random.Range(1, 5);
-            this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
+            arrowScript.ChooseArrowDirection(arrowDirection);
             //player.playerHealth -= attack;
             player.RecieveDamage(attack);
 
@@ -112,22 +109,26 @@ public class EnemyScript : MonoBehaviour
     {
         if (health < 1)
         {
+            Debug.Log("Enemy Killed");
             //spawner.trigger = true;
             //Destroy(transform.parent.gameObject);
-            spawner.enemiesObjects[spawner.enemyCount].SetActive(false);
+            spawner.SetCurrentEnemy(false);
             health = maxHealth;
             spawner.triggerMoveEnemy = false;
-            spawner.progressController.UpdateProgressBar();
+            if (spawner.enemyTime)
+            {
+                spawner.progressController.UpdateProgressBar();
+            }
             spawner.CountEnemies();
-            spawner.SpawnEnemy();
+            spawner.DetermineEnemyToSpawn();
+            GameDataManager.instance.AddCoins(1);
             //this.transform.GetChild(0).GetComponent<EnemyScript>().enabled = false;
-
-            Debug.Log("Enemy Killed");
         }
         else
         {
             arrowDirection = Random.Range(1, 5);
-            this.transform.GetChild(0).GetComponent<ArrowDirection>().ChooseArrowDirection(arrowDirection);
+            arrowScript.ChooseArrowDirection(arrowDirection);
+            Debug.Log("New Direction From Enemy Script: " + arrowDirection);
         }
     }
 

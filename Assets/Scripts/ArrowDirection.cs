@@ -20,6 +20,16 @@ public class ArrowDirection : MonoBehaviour
     {
         spriteNumber = this.transform.parent.GetComponent<EnemyScript>().arrowDirection;
         ChooseArrowDirection(spriteNumber);
+        Debug.Log("First Direction Chosen");
+        //if(transform.parent.GetComponent<EnemyScript>().number == 0 && transform.parent.GetComponent<EnemyScript>().role == "enemy")
+        //{
+        //    spriteNumber = this.transform.parent.GetComponent<EnemyScript>().arrowDirection;
+        //    ChooseArrowDirection(spriteNumber);
+        //}
+        //else
+        //{
+        //    ChooseArrowDirection(1);
+        //}
     }
 
     // Update is called once per frame
@@ -51,18 +61,22 @@ public class ArrowDirection : MonoBehaviour
             case 1:
                 //spriteRenderer.sprite = up;
                 arrowTransform.rotation = Quaternion.Euler(0, 0, 90);
+                Debug.Log("Arrow is UP");
                 break;
             case 2:
                 //spriteRenderer.sprite = down;
                 arrowTransform.rotation = Quaternion.Euler(0, 0, 270);
+                Debug.Log("Arrow is DOWN");
                 break;
             case 3:
                 //spriteRenderer.sprite = left;
                 arrowTransform.rotation = Quaternion.Euler(0, 0, 180);
+                Debug.Log("Arrow is LEFT");
                 break;
             case 4:
                 //spriteRenderer.sprite = right;
                 arrowTransform.rotation = Quaternion.Euler(0, 0, 0);
+                Debug.Log("Arrow is RIGHT");
                 break;
             default:
                 break;
