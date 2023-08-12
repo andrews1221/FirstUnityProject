@@ -20,6 +20,7 @@ public class BlockPhase : MonoBehaviour
     public EnemySpawner spawner;
     public Canvas canvas;
     private Vector3 canvasBounds;
+    private bool animateButton;
 
     // Start is called before the first frame update
     void Start()
@@ -80,7 +81,9 @@ public class BlockPhase : MonoBehaviour
                         canvasBounds.x/2 - dotBtnList[currentBtn].GetComponent<RectTransform>().rect.width), Random.Range(-canvasBounds.y/2 + dotBtnList[currentBtn].GetComponent<RectTransform>().rect.height,
                         canvasBounds.y/2 - dotBtnList[currentBtn].GetComponent<RectTransform>().rect.height));
                     dotBtnList[currentBtn].gameObject.SetActive(true);
-                    AnimateButton(dotBtnList[currentBtn]);
+                    animateButton = true;
+                    StartCoroutine(AnimateButtonCoroutine(dotBtnList[currentBtn]));
+                    //AnimateButton(dotBtnList[currentBtn]);
                     //Debug.Log("Button " + currentBtn + " spawned");
                 }
                 else if (i != currentBtn)
@@ -96,10 +99,12 @@ public class BlockPhase : MonoBehaviour
     {
         if (blockPhase)
         {
+            StopAllCoroutines();
             currentBtn++;
             if (currentBtn == dotBtnList.Count)
             {
                 currentBtn = 0;
+                animateButton = false;
                 blockPhase = false;
                 SetBlockButtons(false);
                 spawner.pullBackEnemy = true;
@@ -129,5 +134,16 @@ public class BlockPhase : MonoBehaviour
         {
             button.transform.DOScale(1f, 0.4f);
         });
+    }
+
+    private IEnumerator AnimateButtonCoroutine(Button button)
+    {
+        button.transform.DOComplete();
+        button.transform.DOScale(1.2f, 0.4f).OnComplete(() =>
+        {
+            button.transform.DOScale(1f, 0.4f);
+        });
+        yield return new WaitForSeconds(0.9f);
+        StartCoroutine(AnimateButtonCoroutine(button));
     }
 }
