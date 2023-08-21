@@ -97,7 +97,10 @@ public class EnemyScript : MonoBehaviour
             {
                 player.playerHealth -= damage;
                 spawner.pullBackEnemy = true;
-                spawner.blockphaseController.SetBlockButtons(false);
+                if(spawner.enemyTime)
+                    spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.enemyBlockBtnList);
+                else if (spawner.miniBossTime)
+                    spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.miniBossBlockBtnList);
                 spawner.blockphaseController.blockPhase = false;
                 spawner.blockphaseController.currentBtn = 0;
                 player.CheckPlayerHealth(spawner);

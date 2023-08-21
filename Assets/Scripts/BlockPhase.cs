@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 using DG.Tweening;
 
 public class BlockPhase : MonoBehaviour
@@ -14,13 +15,19 @@ public class BlockPhase : MonoBehaviour
     public bool end = false;
     public bool blockSuccess = false;
 
-    public List<Button> dotBtnList = new List<Button>();
+    public List<Button> enemyBlockBtnList = new List<Button>();
+    public List<Button> miniBossBlockBtnList = new List<Button>();
     public int currentBtn = 0;
     public bool blockPhase;
     public EnemySpawner spawner;
     public Canvas canvas;
     private Vector3 canvasBounds;
-    private bool animateButton;
+    private Vector2 temporaryPos;
+    private RectTransform rectTran;
+    private bool animateButton, checkPos;
+    private List<int> intMiniBoss = new List<int>{ 1, 2, 3, 4, 5}; // 0 is used to substitute already output integers
+    private List<int> sequenceNumMiniBoss = new List<int>();
+    private List<Vector2> spawnedButtonsPositions = new List<Vector2>();
 
     // Start is called before the first frame update
     void Start()
@@ -71,28 +78,10 @@ public class BlockPhase : MonoBehaviour
 
     public void SpawnBlockButtons()
     {
-        if (blockPhase)
-        {
-            for (int i = 0; i < dotBtnList.Count; i++)
-            {
-                if (i == currentBtn)
-                {
-                    dotBtnList[currentBtn].GetComponent<RectTransform>().localPosition = new Vector2(Random.Range(-canvasBounds.x/2 + dotBtnList[currentBtn].GetComponent<RectTransform>().rect.width,
-                        canvasBounds.x/2 - dotBtnList[currentBtn].GetComponent<RectTransform>().rect.width), Random.Range(-canvasBounds.y/2 + dotBtnList[currentBtn].GetComponent<RectTransform>().rect.height,
-                        canvasBounds.y/2 - dotBtnList[currentBtn].GetComponent<RectTransform>().rect.height));
-                    dotBtnList[currentBtn].gameObject.SetActive(true);
-                    animateButton = true;
-                    StartCoroutine(AnimateButtonCoroutine(dotBtnList[currentBtn]));
-                    //AnimateButton(dotBtnList[currentBtn]);
-                    //Debug.Log("Button " + currentBtn + " spawned");
-                }
-                else if (i != currentBtn)
-                {
-                    dotBtnList[i].gameObject.SetActive(false);
-                    //Debug.Log("Button " + i + " deactivated");
-                }
-            }
-        }
+        if (spawner.enemyTime)
+            SpawnEnemyBlockButtons();
+        else if (spawner.miniBossTime)
+            SpawnMiniBossBlockButtons();
     }
 
     public void OnBlockButtonPressed()
@@ -101,12 +90,11 @@ public class BlockPhase : MonoBehaviour
         {
             StopAllCoroutines();
             currentBtn++;
-            if (currentBtn == dotBtnList.Count)
+            if (currentBtn == enemyBlockBtnList.Count)
             {
                 currentBtn = 0;
-                animateButton = false;
                 blockPhase = false;
-                SetBlockButtons(false);
+                SetBlockButtons(false, enemyBlockBtnList);
                 spawner.pullBackEnemy = true;
                 spawner.enemiesObjects[spawner.enemyCount].transform.GetChild(0).GetComponent<EnemyScript>().StopRotationAnimation();//EnemyScript is attached to a child
                 spawner.enemiesObjects[spawner.enemyCount].transform.GetChild(0).transform.rotation = Quaternion.identity;
@@ -114,15 +102,38 @@ public class BlockPhase : MonoBehaviour
                 Debug.Log("3 Dots Clicked");
                 return;
             }
-            SpawnBlockButtons();
+            SpawnEnemyBlockButtons();
         }
     }
 
-    public void SetBlockButtons(bool state)
+    public void OnMiniBossButtonPressed()
     {
-        for (int i = 0; i < dotBtnList.Count; i++)
+        StopAllCoroutines();
+        miniBossBlockBtnList[sequenceNumMiniBoss.FindIndex(a => a == currentBtn+1)].gameObject.SetActive(false);
+        currentBtn++;
+        if (currentBtn == miniBossBlockBtnList.Count)
         {
-            dotBtnList[i].gameObject.SetActive(state);
+            currentBtn = 0;
+            blockPhase = false;
+            SetBlockButtons(false, miniBossBlockBtnList);
+            sequenceNumMiniBoss = new List<int>();
+            spawner.pullBackEnemy = true;
+            spawner.enemiesObjects[spawner.enemyCount].transform.GetChild(0).GetComponent<EnemyScript>().StopRotationAnimation();//EnemyScript is attached to a child
+            spawner.enemiesObjects[spawner.enemyCount].transform.GetChild(0).transform.rotation = Quaternion.identity;
+
+            Debug.Log("5 MiniBoss Buttons Clicked");
+            return;
+        }
+        miniBossBlockBtnList[sequenceNumMiniBoss.FindIndex(a => a == currentBtn+1)].enabled = true;
+        miniBossBlockBtnList[sequenceNumMiniBoss.FindIndex(a => a == currentBtn + 1)].transform.GetChild(0).gameObject.SetActive(true);
+        StartCoroutine(AnimateButtonCoroutine(miniBossBlockBtnList[sequenceNumMiniBoss.FindIndex(a => a == currentBtn+1)]));
+    }
+
+    public void SetBlockButtons(bool state, List<Button> buttons)
+    {
+        for (int i = 0; i < buttons.Count; i++)
+        {
+            buttons[i].gameObject.SetActive(state);
             Debug.Log("Button " + i + " " + state);
         }
     }
@@ -145,5 +156,121 @@ public class BlockPhase : MonoBehaviour
         });
         yield return new WaitForSeconds(0.9f);
         StartCoroutine(AnimateButtonCoroutine(button));
+    }
+
+    private void SpawnEnemyBlockButtons()
+    {
+        for (int i = 0; i < enemyBlockBtnList.Count; i++)
+        {
+            if (i == currentBtn)
+            {
+                enemyBlockBtnList[currentBtn].GetComponent<RectTransform>().localPosition = new Vector2(Random.Range(-canvasBounds.x / 2 + enemyBlockBtnList[currentBtn].GetComponent<RectTransform>().rect.width,
+                    canvasBounds.x / 2 - enemyBlockBtnList[currentBtn].GetComponent<RectTransform>().rect.width), Random.Range(-canvasBounds.y / 2 + enemyBlockBtnList[currentBtn].GetComponent<RectTransform>().rect.height,
+                    canvasBounds.y / 2 - enemyBlockBtnList[currentBtn].GetComponent<RectTransform>().rect.height));
+                enemyBlockBtnList[currentBtn].gameObject.SetActive(true);
+                StartCoroutine(AnimateButtonCoroutine(enemyBlockBtnList[currentBtn]));
+                //AnimateButton(dotBtnList[currentBtn]);
+                //Debug.Log("Button " + currentBtn + " spawned");
+            }
+            else if (i != currentBtn)
+            {
+                enemyBlockBtnList[i].gameObject.SetActive(false);
+                //Debug.Log("Button " + i + " deactivated");
+            }
+        }
+    }
+
+    public void SpawnMiniBossBlockButtons()
+    {
+        for (int i = 0; i < miniBossBlockBtnList.Count; i++)
+        {
+            miniBossBlockBtnList[i].gameObject.SetActive(true);
+            miniBossBlockBtnList[i].enabled = false;
+            //RectTransform rectTran = miniBossBlockBtnList[i].GetComponent<RectTransform>();
+            //Vector2 temporaryPos = new Vector2(Random.Range(-canvasBounds.x / 2 + miniBossBlockBtnList[i].GetComponent<RectTransform>().rect.width,
+            //    canvasBounds.x / 2 - miniBossBlockBtnList[i].GetComponent<RectTransform>().rect.width), Random.Range(-canvasBounds.y / 2 + miniBossBlockBtnList[i].GetComponent<RectTransform>().rect.height,
+            //    canvasBounds.y / 2 - miniBossBlockBtnList[i].GetComponent<RectTransform>().rect.height));
+            //rectTran.localPosition = temporaryPos;
+            //GeneratePosition(i);
+            int number = DistributeNumbers();
+            miniBossBlockBtnList[i].transform.GetChild(0).GetComponent<TMP_Text>().text = number.ToString();
+            miniBossBlockBtnList[i].transform.GetChild(0).gameObject.SetActive(false);
+            if (number == 1)
+            {
+                miniBossBlockBtnList[i].enabled = true;
+                miniBossBlockBtnList[i].transform.GetChild(0).gameObject.SetActive(true);
+                StartCoroutine(AnimateButtonCoroutine(miniBossBlockBtnList[i]));
+            }
+        }
+        intMiniBoss = new List<int>{ 1, 2, 3, 4, 5 };
+    }
+
+    private void GeneratePosition(int orderNum)
+    {
+        bool spawn = false;
+        rectTran = miniBossBlockBtnList[orderNum].GetComponent<RectTransform>();
+        temporaryPos = new Vector2(Random.Range(-canvasBounds.x / 2 + miniBossBlockBtnList[orderNum].GetComponent<RectTransform>().rect.width,
+                canvasBounds.x / 2 - miniBossBlockBtnList[orderNum].GetComponent<RectTransform>().rect.width), Random.Range(-canvasBounds.y / 2 + miniBossBlockBtnList[orderNum].GetComponent<RectTransform>().rect.height,
+                canvasBounds.y / 2 - miniBossBlockBtnList[orderNum].GetComponent<RectTransform>().rect.height));
+        //Debug.Log("BEFORE FOR LOOP");
+        if(spawnedButtonsPositions.Count == 0)
+        {
+            rectTran.localPosition = temporaryPos;
+            return;
+        }
+        for (int j = 0; j < spawnedButtonsPositions.Count; j++)
+        {
+            while (Vector2.Distance(temporaryPos, spawnedButtonsPositions[j]) < 1.2*Mathf.Sqrt(Mathf.Pow(rectTran.rect.width, 2) + Mathf.Pow(rectTran.rect.height, 2)))
+            {
+                temporaryPos = new Vector2(Random.Range(-canvasBounds.x / 2 + miniBossBlockBtnList[orderNum].GetComponent<RectTransform>().rect.width,
+                    canvasBounds.x / 2 - miniBossBlockBtnList[orderNum].GetComponent<RectTransform>().rect.width), Random.Range(-canvasBounds.y / 2 + miniBossBlockBtnList[orderNum].GetComponent<RectTransform>().rect.height,
+                    canvasBounds.y / 2 - miniBossBlockBtnList[orderNum].GetComponent<RectTransform>().rect.height));
+            }
+            if(Vector2.Distance(temporaryPos, spawnedButtonsPositions[j]) > Mathf.Sqrt(Mathf.Pow(rectTran.rect.width, 2) + Mathf.Pow(rectTran.rect.height, 2)))
+            {
+                spawn = true;
+            }
+        }
+        if (spawn)
+        {
+            spawnedButtonsPositions.Add(temporaryPos);
+            rectTran.localPosition = temporaryPos;
+        }
+    }
+
+    private int DistributeNumbers()
+    {
+        int n = Random.Range(1, 6);
+        if (intMiniBoss[n - 1] == n)
+        {
+            intMiniBoss[n - 1] = 0;
+            sequenceNumMiniBoss.Add(n);
+            Debug.Log("Button number success: " + n);
+            return n;
+        }
+        else if (intMiniBoss[n - 1] == 0)
+        {
+            //int elseN = intMiniBoss.Find(x => x > 0);
+            //Debug.Log("Button number through Find: " + elseN);
+            //intMiniBoss[n - 1] = 0;
+            //return elseN;
+            int elseN;
+            for (int x = 0; x < intMiniBoss.Count; x++)
+            {
+                if (intMiniBoss[x] > 0)
+                {
+                    elseN = intMiniBoss[x];
+                    sequenceNumMiniBoss.Add(elseN);
+                    intMiniBoss[x] = 0;
+                    Debug.Log("Button number through Find: " + elseN);
+                    return elseN;
+                }
+                else
+                    continue;
+            }
+        }
+
+        Debug.Log("Distribution Failed");
+        return 0;
     }
 }
