@@ -5,7 +5,7 @@ using UnityEngine.UI;
 using DG.Tweening;
 
 public class Player : MonoBehaviour
-{
+{ 
     private Vector2 fingerDown;
     private Vector2 fingerUp;
     private float holdStart;
@@ -24,6 +24,9 @@ public class Player : MonoBehaviour
     public EnemySpawner spawner;
     public float swordRotationOriginalZ;
     public Image swordImg;
+    public GameObject bossSwiper;
+
+    //public GameObject bossSwiperPrefab;
 
     private void Awake()
     {
@@ -31,6 +34,7 @@ public class Player : MonoBehaviour
         initialPlayerAttack = playerAttack;
         Debug.Log("Initial Attack: " + initialPlayerAttack);
     }
+
     // Update is called once per frame
     void Update()
     {
@@ -43,6 +47,10 @@ public class Player : MonoBehaviour
         {
             if (touch.phase == TouchPhase.Began)
             {
+                //if (spawner.blockphaseController.blockPhase)
+                //{
+                //    bossSwiper.transform.localPosition = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, 1));
+                //}
                 fingerUp = touch.position;
                 fingerDown = touch.position;
                 holdStart = Time.time;
@@ -58,6 +66,10 @@ public class Player : MonoBehaviour
             {
                 if (!detectSwipeOnlyAfterRelease)
                 {
+                    //if (spawner.blockphaseController.blockPhase)
+                    //{
+                    //    bossSwiper.transform.localPosition = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, 1));
+                    //}
                     fingerDown = touch.position;
                     CheckSwipe();
                 }
@@ -66,6 +78,10 @@ public class Player : MonoBehaviour
             //Detects swipe after finger is released
             if (touch.phase == TouchPhase.Ended)
             {
+                //if (spawner.blockphaseController.blockPhase)
+                //{
+                //    bossSwiper.transform.localPosition = Camera.main.ScreenToWorldPoint(new Vector3(touch.position.x, touch.position.y, 1));
+                //}
                 fingerDown = touch.position;
                 CheckSwipe();
             }
@@ -74,46 +90,44 @@ public class Player : MonoBehaviour
 
     private void CheckSwipe()
     {
-        //if(blocking == false)
-        //{
-        //Check if Vertical swipe
-
-        //}
-        if (VerticalMove() > swipeThreshold && VerticalMove() > HorizontalValMove())
+        if (!BlockPhase.instance.blockPhase)
         {
-            //Debug.Log("Vertical");
-            if (fingerDown.y - fingerUp.y > 0)//up swipe
+            if (VerticalMove() > swipeThreshold && VerticalMove() > HorizontalValMove())
             {
-                OnSwipeUp();
+                //Debug.Log("Vertical");
+                if (fingerDown.y - fingerUp.y > 0)//up swipe
+                {
+                    OnSwipeUp();
+                }
+                else if (fingerDown.y - fingerUp.y < 0)//Down swipe
+                {
+                    OnSwipeDown();
+                }
+                fingerUp = fingerDown;
+                checkSwipe = true;
             }
-            else if (fingerDown.y - fingerUp.y < 0)//Down swipe
-            {
-                OnSwipeDown();
-            }
-            fingerUp = fingerDown;
-            checkSwipe = true;
-        }
 
-        //Check if Horizontal swipe
-        else if (HorizontalValMove() > swipeThreshold && HorizontalValMove() > VerticalMove())
-        {
-            //Debug.Log("Horizontal");
-            if (fingerDown.x - fingerUp.x > 0)//Right swipe
+            //Check if Horizontal swipe
+            else if (HorizontalValMove() > swipeThreshold && HorizontalValMove() > VerticalMove())
             {
-                OnSwipeRight();
+                //Debug.Log("Horizontal");
+                if (fingerDown.x - fingerUp.x > 0)//Right swipe
+                {
+                    OnSwipeRight();
+                }
+                else if (fingerDown.x - fingerUp.x < 0)//Left swipe
+                {
+                    OnSwipeLeft();
+                }
+                fingerUp = fingerDown;
+                checkSwipe = true;
             }
-            else if (fingerDown.x - fingerUp.x < 0)//Left swipe
-            {
-                OnSwipeLeft();
-            }
-            fingerUp = fingerDown;
-            checkSwipe = true;
-        }
 
-        //No Movement at-all
-        else
-        {
-            //Debug.Log("No Swipe!");
+            //No Movement at-all
+            else
+            {
+                //Debug.Log("No Swipe!");
+            }
         }
     }
 
@@ -167,11 +181,11 @@ public class Player : MonoBehaviour
 
     public void CheckPlayerHealth(EnemySpawner enemySpawner)
     {
-        if(playerHealth <= 0)
+        if (playerHealth <= 0)
         {
             enemySpawner.triggerMoveEnemy = false;
             enemySpawner.pullBackEnemy = false;
-            enemySpawner.enemiesObjects[enemySpawner.enemyCount].SetActive(false);
+            spawner.SetCurrentEnemy(false);
         }
     }
 
@@ -287,8 +301,40 @@ public class Player : MonoBehaviour
     private void MoveSword(float rotate)
     {
         swordImg.transform.DOComplete();
-        swordImg.transform.DORotate(new Vector3(swordImg.transform.rotation.x, swordImg.transform.rotation.y, swordRotationOriginalZ+rotate), 0.5f).OnComplete(() => {
+        swordImg.transform.DORotate(new Vector3(swordImg.transform.rotation.x, swordImg.transform.rotation.y, swordRotationOriginalZ + rotate), 0.5f).OnComplete(() =>
+        {
             swordImg.transform.DORotate(new Vector3(swordImg.transform.rotation.x, swordImg.transform.rotation.y, swordRotationOriginalZ), 0.5f);
         });
+    }
+
+    private void BossSwipe()
+    {
+        foreach (Touch touch in Input.touches)
+        {
+            if (touch.phase == TouchPhase.Began)
+            {
+                bossSwiper.transform.position = touch.position;
+            }
+
+            /*if ((touch.phase == TouchPhase.Stationary) && (holdThreshold < Time.time - holdStart))
+            {
+                blocking = true;
+            }*/
+
+            //Detects Swipe while finger is still moving
+            if (touch.phase == TouchPhase.Moved)
+            {
+                if (!detectSwipeOnlyAfterRelease)
+                {
+                    bossSwiper.transform.position = touch.position;
+                }
+            }
+
+            //Detects swipe after finger is released
+            if (touch.phase == TouchPhase.Ended)
+            {
+                bossSwiper.transform.position = touch.position;
+            }
+        }
     }
 }

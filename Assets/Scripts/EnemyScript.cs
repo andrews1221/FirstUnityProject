@@ -6,15 +6,15 @@ using DG.Tweening;
 public class EnemyScript : MonoBehaviour
 {
     public Vector3 targetPosition = new Vector3(0,0,0), initialSize, finalSize;
-    public float speed;
+    public float initialSpeed;
     public string material;
     public string role;//can be "enemy", "miniBoss", "boss".
-    [HideInInspector] public float initialSpeed;
+    [HideInInspector] public float speed;
+    [HideInInspector] public EnemySpawner spawner;
     public bool fire, water, earth, metal, wood;
     public int attack = 1;
-    public int health = 10, arrowDirection, number, maxHealth;
+    public int health, arrowDirection, number, maxHealth;
     private Player player;
-    private EnemySpawner spawner;
     private ArrowDirection arrowScript;
     // Start is called before the first frame update
     void Start()
@@ -23,12 +23,16 @@ public class EnemyScript : MonoBehaviour
         spawner = GameObject.Find("SpawnController").GetComponent<EnemySpawner>();
         arrowScript = this.transform.GetChild(0).GetComponent<ArrowDirection>();
         //arrowDirection = Random.Range(1,5);
-        maxHealth = health;
-        initialSpeed = speed;
-        Debug.Log("Initial speed " + initialSpeed);
+        health = maxHealth;
+        speed = initialSpeed;
+        //Debug.Log("Health " + health);
         //Debug.Log(playerControls.GetComponent<ControlsScript>().SWIPE_DEIRECTION);
     }
 
+    private void OnEnable()
+    {
+        health = maxHealth;
+    }
     // Update is called once per frame
     void Update()
     {
@@ -44,7 +48,7 @@ public class EnemyScript : MonoBehaviour
             spawner.CheckForPullBack();
             //spawner.oldEnemyPosition = spawner.enemiesObjects[spawner.enemyCount].transform.position;
 
-            Debug.Log("Player: Damage Dealt");
+            Debug.Log("Player: Damage Dealt; Block Phase: " + spawner.blockphaseController.blockPhase);
             return;
         }
         else if (player.swipeDirection != arrowDirection && player.checkSwipe && !spawner.blockphaseController.blockPhase)
@@ -83,31 +87,77 @@ public class EnemyScript : MonoBehaviour
         }
     }
 
+    //public void AttackPlayer(int damage)
+    //{
+    //    this.transform.DOComplete();
+    //    //Camera.main.transform.DOShakePosition(1f, new Vector3(1f, 0f, 0f), 10, 0);
+    //    //this.transform.DOScale(1.2f, 0.5f).OnComplete(() => {
+    //    //    this.transform.DOScale(1f, 0.5f);
+    //    //    spawner.pullBackEnemy = true;
+    //    //});
+    //    //this.transform.DORotate(new Vector3(0, 60f, 0), 5f).OnComplete(() => {
+    //    //    this.transform.DORotate(new Vector3(0, 0, 0), 0.5f);
+    //    this.transform.DORotate(new Vector3(0, 60, 0), 20f).OnComplete(() => {
+    //        this.transform.DORotate(new Vector3(0, 0, 0), 0.5f);
+    //        if (spawner.blockphaseController.blockPhase)
+    //        {
+    //            player.playerHealth -= damage;
+    //            spawner.pullBackEnemy = true;
+    //            if(spawner.enemyTime)
+    //                spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.enemyBlockBtnList);
+    //            else if(spawner.miniBossTime)
+    //                spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.miniBossBlockBtnList);
+    //            else if (spawner.bossTime)
+    //            {
+    //                BlockPhase.instance.RestoreBossCombo();
+    //            }
+
+    //            spawner.blockphaseController.blockPhase = false;
+    //            spawner.blockphaseController.currentBtn = 0;
+    //            player.CheckPlayerHealth(spawner);
+    //        }
+    //    });
+    //}
+
     public void AttackPlayer(int damage)
     {
-        Camera.main.transform.DOComplete();
-        //Camera.main.transform.DOShakePosition(1f, new Vector3(1f, 0f, 0f), 10, 0);
-        //this.transform.DOScale(1.2f, 0.5f).OnComplete(() => {
-        //    this.transform.DOScale(1f, 0.5f);
-        //    spawner.pullBackEnemy = true;
-        //});
-        this.transform.DORotate(new Vector3(0, 60f, 0), 5f).OnComplete(() => {
-            this.transform.DORotate(new Vector3(0, 0, 0), 0.5f);
-            if(spawner.blockphaseController.blockPhase)
-            {
-                player.playerHealth -= damage;
-                spawner.pullBackEnemy = true;
-                if(spawner.enemyTime)
-                    spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.enemyBlockBtnList);
-                else if (spawner.miniBossTime)
-                    spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.miniBossBlockBtnList);
-                spawner.blockphaseController.blockPhase = false;
-                spawner.blockphaseController.currentBtn = 0;
-                player.CheckPlayerHealth(spawner);
-            }
-        });
-    }
+        {
+            this.transform.DOComplete();
+            //Camera.main.transform.DOShakePosition(1f, new Vector3(1f, 0f, 0f), 10, 0);
+            //this.transform.DOScale(1.2f, 0.5f).OnComplete(() => {
+            //    this.transform.DOScale(1f, 0.5f);
+            //    spawner.pullBackEnemy = true;
+            //});
+            //this.transform.DORotate(new Vector3(0, 60f, 0), 5f).OnComplete(() => {
+            //    this.transform.DORotate(new Vector3(0, 0, 0), 0.5f);
+            this.transform.DORotate(new Vector3(0, 60, 0), 20f).OnComplete(() => {
 
+                if (spawner.blockphaseController.blockPhase)
+                {
+                    if (spawner.enemyTime)
+                    {
+                        spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.enemyBlockBtnList);
+                    }
+                    else if (spawner.miniBossTime)
+                    {
+                        spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.miniBossBlockBtnList);
+                    }
+                    else if (spawner.bossTime)
+                    {
+                        BlockPhase.instance.RestoreBossCombo();
+                    }
+                }
+                this.transform.DORotate(new Vector3(0, 0, 0), 2f).OnComplete(() =>
+                {
+                    player.playerHealth -= damage;
+                    spawner.pullBackEnemy = true;
+                    spawner.blockphaseController.blockPhase = false;
+                    player.CheckPlayerHealth(spawner);
+                });
+                
+            });
+        }
+    }
     private void CheckEnemyHealth()
     {
         if (health < 1)

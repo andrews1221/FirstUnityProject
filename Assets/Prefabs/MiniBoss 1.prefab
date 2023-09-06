@@ -231,18 +231,21 @@ MonoBehaviour:
   targetPosition: {x: 0, y: 0, z: 0}
   initialSize: {x: 0.5, y: 0.5, z: 1}
   finalSize: {x: 1.2, y: 1.2, z: 1}
-  speed: 2
+  initialSpeed: 2
   material: earth
   role: miniBoss
-  initialSpeed: 0
+  speed: 2
+  spawner: {fileID: 0}
   fire: 0
   water: 0
   earth: 0
   metal: 0
   wood: 0
   attack: 1
-  health: 10
+  health: 0
   arrowDirection: 0
+  number: 0
+  maxHealth: 10
 --- !u!1 &7584728882064653143
 GameObject:
   m_ObjectHideFlags: 0

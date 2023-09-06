@@ -18,9 +18,12 @@ public class ArrowDirection : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        spriteNumber = this.transform.parent.GetComponent<EnemyScript>().arrowDirection;
-        ChooseArrowDirection(spriteNumber);
-        Debug.Log("First Direction Chosen");
+        if (transform.parent.GetComponent<EnemyScript>().spawner.enemyCount == 0 && transform.parent.GetComponent<EnemyScript>().role == "enemy")
+        {
+            spriteNumber = this.transform.parent.GetComponent<EnemyScript>().arrowDirection;
+            ChooseArrowDirection(spriteNumber);
+            Debug.Log("First Direction Chosen");
+        }
         //if(transform.parent.GetComponent<EnemyScript>().number == 0 && transform.parent.GetComponent<EnemyScript>().role == "enemy")
         //{
         //    spriteNumber = this.transform.parent.GetComponent<EnemyScript>().arrowDirection;
