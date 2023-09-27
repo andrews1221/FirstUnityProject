@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class EnemySpawner : MonoBehaviour
-{
-    [SerializeField] private GameObject enemyPrefab, miniBoss1Prefab, miniBoss2Prefab, bossPrefab;
-    [SerializeField] private Player player;
+{ 
     //public bool trigger;
     public bool triggerMoveEnemy, pullBackEnemy;
-    public int numberOfEnemies, enemyCount = 0, miniBossCount;
+    public int numberOfEnemies, enemyCount = 0;
     public float distanceBetweenEnemyAndPlayer;
     public ProgressController progressController;
     public BlockPhase blockphaseController;
@@ -17,14 +15,18 @@ public class EnemySpawner : MonoBehaviour
     [HideInInspector] public GameObject boss;
     [HideInInspector] public Vector2 oldEnemyPosition, startingPosition;
     [HideInInspector] public bool enemyTime, miniBossTime, bossTime;
+    [HideInInspector] public int miniBossCount;
     //public int numberOfSpawnPoints;
-    private GameObject[] spawnersList;
+    [SerializeField] private GameObject enemyPrefab, miniBoss1Prefab, miniBoss2Prefab, bossPrefab;
+    [SerializeField] private Player player;
+    [SerializeField] private GameObject[] spawnersList;
     private GameObject miniBoss1, miniBoss2;
     private Vector2 enemiesPoolPosition = new Vector2(40, 40);
     private Vector2 cameraBounds, finalPosition;
     private EnemyScript enemyScript;
     private ArrowDirection arrowScript;
-    private int countMeetings;
+    private int countEncountersWithPlayer;
+    private float pullBackOffset;
 
     // Start is called before the first frame update
     void Awake()
@@ -32,7 +34,6 @@ public class EnemySpawner : MonoBehaviour
         cameraBounds = Camera.main.ScreenToWorldPoint(new Vector2(Screen.width, Screen.height));
         startingPosition = new Vector2(0, cameraBounds.y - 2);//offset may be mended
         finalPosition = new Vector2(0, -cameraBounds.y + 2);
-        spawnersList = GameObject.FindGameObjectsWithTag("SpawnPoint");
         //For now we specify spawn points' locations, needs optimization further
         spawnersList[0].transform.position = new Vector2(-cameraBounds.x - 2, cameraBounds.y);
         spawnersList[1].transform.position = new Vector2(cameraBounds.x + 2, cameraBounds.y);
@@ -63,6 +64,7 @@ public class EnemySpawner : MonoBehaviour
 
     private void Start()
     {
+        SetPullbackOffset(1);
         DetermineEnemyToSpawn();
     }
 
@@ -102,14 +104,13 @@ public class EnemySpawner : MonoBehaviour
         enemiesObjects[enemyCount].transform.position = Vector3.MoveTowards(enemiesObjects[enemyCount].transform.position, enemyScript.targetPosition, Time.deltaTime * enemyScript.speed);
         if ((Vector2)enemiesObjects[enemyCount].transform.position == startingPosition)
         {
-            DetermineEnemySpeed(enemyScript);
             enemyScript.targetPosition = finalPosition;
         }
         else if ((Vector2)enemiesObjects[enemyCount].transform.position == finalPosition)
         {
             blockphaseController.blockPhase = true;
             blockphaseController.SpawnBlockButtons();
-            enemyScript.AttackPlayer(enemyScript.attack);
+            enemyScript.AttackPlayer(enemyScript.attack, 3f);
             triggerMoveEnemy = false;
         }
         distanceBetweenEnemyAndPlayer = Vector2.Distance(enemiesObjects[enemyCount].transform.position, finalPosition);
@@ -122,15 +123,15 @@ public class EnemySpawner : MonoBehaviour
         currentMiniBoss.transform.position = Vector3.MoveTowards(currentMiniBoss.transform.position, enemyScript.targetPosition, Time.deltaTime * enemyScript.speed);
         if ((Vector2)currentMiniBoss.transform.position == startingPosition)
         {
-            DetermineEnemySpeed(enemyScript);
             enemyScript.targetPosition = finalPosition;
         }
         else if ((Vector2)currentMiniBoss.transform.position == finalPosition)
         {
             blockphaseController.blockPhase = true;
             blockphaseController.SpawnBlockButtons();
-            enemyScript.AttackPlayer(enemyScript.attack);
+            enemyScript.AttackPlayer(enemyScript.attack, 4f);
             triggerMoveEnemy = false;
+            countEncountersWithPlayer++;
         }
         distanceBetweenEnemyAndPlayer = Vector2.Distance(currentMiniBoss.transform.position, finalPosition);
         arrowScript.SetArrowColor(distanceBetweenEnemyAndPlayer);
@@ -143,15 +144,15 @@ public class EnemySpawner : MonoBehaviour
         //blockphaseController.blockPhase = false;
         if ((Vector2)boss.transform.position == startingPosition)
         {
-            DetermineEnemySpeed(enemyScript);
             enemyScript.targetPosition = finalPosition;
         }
         else if ((Vector2)boss.transform.position == finalPosition)
         {
             blockphaseController.blockPhase = true;
             blockphaseController.SpawnBlockButtons();
-            enemyScript.AttackPlayer(enemyScript.attack);
+            enemyScript.AttackPlayer(enemyScript.attack, 6f);
             triggerMoveEnemy = false;
+            countEncountersWithPlayer++;
         }
         distanceBetweenEnemyAndPlayer = Vector2.Distance(boss.transform.position, finalPosition);
         arrowScript.SetArrowColor(distanceBetweenEnemyAndPlayer);
@@ -161,7 +162,7 @@ public class EnemySpawner : MonoBehaviour
     public void CountEnemies()
     {
         enemyCount++;
-        if (enemyCount >= numberOfEnemies)
+        if (enemyCount > numberOfEnemies)
         {
             enemyCount = 0;
         }
@@ -171,47 +172,53 @@ public class EnemySpawner : MonoBehaviour
     {
         if (enemyTime)
         {
-            enemiesObjects[enemyCount].transform.position = Vector3.MoveTowards(enemiesObjects[enemyCount].transform.position, new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + 2), Time.deltaTime * enemyScript.speed);
-            if ((Vector2)enemiesObjects[enemyCount].transform.position == new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + 2))
+            enemiesObjects[enemyCount].transform.position = Vector3.MoveTowards(enemiesObjects[enemyCount].transform.position, new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + pullBackOffset), Time.deltaTime * enemyScript.speed);
+            if ((Vector2)enemiesObjects[enemyCount].transform.position == new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + pullBackOffset))
             {
-                triggerMoveEnemy = true;
-                pullBackEnemy = false;
+                enemyScript.speed = 0;
+                Invoke("InvokePullBackResult", 0.3f);
             }
             distanceBetweenEnemyAndPlayer = Vector2.Distance(enemiesObjects[enemyCount].transform.position, finalPosition);
-            enemyScript.speed = enemyScript.initialSpeed;
             arrowScript.SetArrowColor(distanceBetweenEnemyAndPlayer);
             enemyScript.SetEnemyScale(distanceBetweenEnemyAndPlayer);
         }
         else if (miniBossTime)
         {
-            currentMiniBoss.transform.position = Vector3.MoveTowards(currentMiniBoss.transform.position, new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + 2), Time.deltaTime * enemyScript.speed);
-            if ((Vector2)currentMiniBoss.transform.position == new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + 2))
+            currentMiniBoss.transform.position = Vector3.MoveTowards(currentMiniBoss.transform.position, new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + pullBackOffset), Time.deltaTime * enemyScript.speed);
+            if ((Vector2)currentMiniBoss.transform.position == new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + pullBackOffset))
             {
-                triggerMoveEnemy = true;
-                pullBackEnemy = false;
+                enemyScript.speed = 0;
+                Invoke("InvokePullBackResult", 0.3f);
             }
             distanceBetweenEnemyAndPlayer = Vector2.Distance(currentMiniBoss.transform.position, finalPosition);
-            enemyScript.speed = enemyScript.initialSpeed;
             arrowScript.SetArrowColor(distanceBetweenEnemyAndPlayer);
             enemyScript.SetEnemyScale(distanceBetweenEnemyAndPlayer);
         }
         else if (bossTime)
         {
-            boss.transform.position = Vector3.MoveTowards(boss.transform.position, new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + 2), Time.deltaTime * enemyScript.speed);
-            if ((Vector2)boss.transform.position == new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + 2))
+            boss.transform.position = Vector3.MoveTowards(boss.transform.position, new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + pullBackOffset), Time.deltaTime * enemyScript.speed);
+            if ((Vector2)boss.transform.position == new Vector2(oldEnemyPosition.x, oldEnemyPosition.y + pullBackOffset))
             {
-                triggerMoveEnemy = true;
-                pullBackEnemy = false;
-                blockphaseController.blockPhase = false; //since swipe is detected instantly when blockphase is false after combo completed 
+                enemyScript.speed = 0;
+                Invoke("InvokePullBackResult", 0.3f);
             }
             distanceBetweenEnemyAndPlayer = Vector2.Distance(boss.transform.position, finalPosition);
-            enemyScript.speed = enemyScript.initialSpeed;
             arrowScript.SetArrowColor(distanceBetweenEnemyAndPlayer);
             enemyScript.SetEnemyScale(distanceBetweenEnemyAndPlayer);
         }
     }
 
-    private void DetermineEnemySpeed(EnemyScript enemy)
+    private void InvokePullBackResult()
+    {
+        triggerMoveEnemy = true;
+        pullBackEnemy = false;
+        blockphaseController.blockPhase = false; //since swipe is detected instantly when blockphase is false after Boss combo completed
+        enemyScript.speed = enemyScript.oldSpeed;
+        SetPullbackOffset(2);
+        //Debug.Log("Speed After Pullback: " + enemyScript.speed);
+    }
+
+    public void DetermineEnemySpeed(EnemyScript enemy)
     {
         //Debug.Log("Enemy Ratio: " + (float)enemyCount / (float)numberOfEnemies);
         for (float i = 0; i <= 1; i += 0.1f)
@@ -225,34 +232,11 @@ public class EnemySpawner : MonoBehaviour
             if ((float)enemyCount / (float)numberOfEnemies > i && (float)enemyCount / (float)numberOfEnemies <= (i + 0.1f))
             {
                 enemy.speed = enemy.initialSpeed*(1 + i);
-                Debug.Log("Speed Increased " + enemy.speed);
+                enemy.oldSpeed = enemy.initialSpeed * (1 + i);
+                Debug.Log("Speed Increased " + enemy.oldSpeed);
                 break;
             }
         }
-        //    Debug.Log("Enemy Ratio: " + (float)enemyCount / (float)numberOfEnemies);
-        //    if ((float)enemyCount / (float)numberOfEnemies <= 0.1f)
-        //    {
-        //        Debug.Log("Speed Increased");
-        //        enemy.speed = enemy.initialSpeed;
-        //    }
-        //    else if ((float) enemyCount / (float)numberOfEnemies > 0.1f && (float)enemyCount / (float)numberOfEnemies <= 0.2f)
-        //    {
-        //        Debug.Log("Speed Increased");
-        //        enemy.speed = enemy.initialSpeed * 1.1f;
-        //    }
-        //    else if ((float)enemyCount / (float)numberOfEnemies > 0.2f && (float)enemyCount / (float)numberOfEnemies <= 0.3f)
-        //    {
-        //        Debug.Log("Speed Increased");
-        //        enemy.speed = enemy.initialSpeed * 1.2f;
-        //    }
-        //    else if ((float)enemyCount / (float)numberOfEnemies > 0.3f && (float) enemyCount / (float)numberOfEnemies <= 0.4f)
-        //    {
-        //        Debug.Log("Speed Increased");
-        //        enemy.speed = enemy.initialSpeed * 1.3f;
-        //    }
-        //    else
-        //        enemy.speed = enemy.initialSpeed * 1.5f;
-        //}
     }
 
     public void SpawnEnemy()
@@ -261,6 +245,7 @@ public class EnemySpawner : MonoBehaviour
         enemiesObjects[enemyCount].transform.position = spawnersList[Random.Range(0, 2)].transform.position;
         enemyScript = enemiesObjects[enemyCount].transform.GetChild(0).GetComponent<EnemyScript>();
         enemyScript.initialSpeed = 2;
+        enemyScript.oldSpeed = enemyScript.initialSpeed;
         DetermineEnemySpeed(enemyScript);
         player.DeterminePlayerAttackBasedOnMaterial(player.material, enemyScript.material);
         arrowScript = enemiesObjects[enemyCount].transform.GetChild(0).GetChild(0).GetComponent<ArrowDirection>();
@@ -285,7 +270,7 @@ public class EnemySpawner : MonoBehaviour
             //miniBoss1.SetActive(true);
             currentMiniBoss = miniBoss1;
             currentMiniBoss.SetActive(true);
-            Debug.Log("Mini Boss: " + currentMiniBoss);
+            //Debug.Log("Mini Boss: " + currentMiniBoss);
         }
         else if(miniBossCount == 1)
         {
@@ -297,7 +282,7 @@ public class EnemySpawner : MonoBehaviour
         enemyScript = currentMiniBoss.transform.GetChild(0).GetComponent<EnemyScript>();
 
         //Invoke function is used since it helps to set health at a max value:
-        Invoke("SetEnemyHealth", 0.5f);
+        Invoke("SetEnemyHealth", 0.3f);
         DetermineEnemySpeed(enemyScript);
         player.DeterminePlayerAttackBasedOnMaterial(player.material, enemyScript.material);
         arrowScript = currentMiniBoss.transform.GetChild(0).GetChild(0).GetComponent<ArrowDirection>();
@@ -312,10 +297,13 @@ public class EnemySpawner : MonoBehaviour
         miniBossTime = true;
         enemyTime = false;
         bossTime = false;
+        countEncountersWithPlayer = 0;
         miniBossCount++;
         if (miniBossCount >= 2)
             miniBossCount = 0;
-        Debug.Log("Mini Boss Appeared: ");
+
+        //Prepare block buttons since the code takes time to execute
+        //BlockPhase.instance.PrepareMiniBossBlockButtons();
     }
 
     public void SpawnBoss()
@@ -340,19 +328,20 @@ public class EnemySpawner : MonoBehaviour
         bossTime = true;
         enemyTime = false;
         miniBossTime = false;
-
-        Debug.Log("Boss Appeared: ");
     }
 
     public void DetermineEnemyToSpawn()
     {
-        if (enemyCount == 3 || enemyCount == 7)
+        Debug.Log("Enemy Count: " + enemyCount);
+        if (enemyCount == 3 || enemyCount == 6)
         {
             SpawnMiniBoss();
+            Debug.Log("Mini Boss Appeared: ");
         }
-        else if (enemyCount == enemiesObjects.Length-1)
+        else if (enemyCount == 1)
         {
             SpawnBoss();
+            Debug.Log("Boss Appeared: ");
         }
         else
         {
@@ -366,7 +355,7 @@ public class EnemySpawner : MonoBehaviour
             enemiesObjects[enemyCount].SetActive(state);
         else if (miniBossTime)
             currentMiniBoss.SetActive(state);
-        else if (boss)
+        else if (bossTime)
             boss.SetActive(state);
     }
 
@@ -379,26 +368,30 @@ public class EnemySpawner : MonoBehaviour
                 triggerMoveEnemy = false;
                 pullBackEnemy = true;
                 oldEnemyPosition = enemiesObjects[enemyCount].transform.position;
+                enemyScript.speed = enemyScript.initialSpeed;
+                Debug.Log("Speed While Pullback " + enemyScript.speed);
             }
         }
 
         else if(miniBossTime)
         {
-            if (currentMiniBoss.transform.position.y <= cameraBounds.y * 0.25f)
+            if (currentMiniBoss.transform.position.y <= cameraBounds.y * 0.25f && countEncountersWithPlayer > 1)
             {
                 triggerMoveEnemy = false;
                 pullBackEnemy = true;
                 oldEnemyPosition = currentMiniBoss.transform.position;
+                enemyScript.speed = enemyScript.initialSpeed;
             }
         }
 
         else if (bossTime)
         {
-            if (boss.transform.position.y <= cameraBounds.y * 0.25f)
+            if (boss.transform.position.y <= cameraBounds.y * 0.25f && countEncountersWithPlayer > 1)
             {
                 triggerMoveEnemy = false;
                 pullBackEnemy = true;
                 oldEnemyPosition = boss.transform.position;
+                enemyScript.speed = enemyScript.initialSpeed;
             }
         }
     }
@@ -406,5 +399,12 @@ public class EnemySpawner : MonoBehaviour
     private void SetEnemyHealth()
     {
         enemyScript.health = enemyScript.maxHealth;
+        enemyScript.UpdateHealthBar();
+    }
+
+    //Each type of enemy has different distance to travel back
+    public void SetPullbackOffset(float value)
+    {
+        pullBackOffset = value;
     }
 }

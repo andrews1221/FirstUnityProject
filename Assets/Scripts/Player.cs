@@ -11,19 +11,20 @@ public class Player : MonoBehaviour
     private float holdStart;
     private int initialPlayerAttack;
     private Camera cam;
+    private Color oldSwordColor, oldShieldColor;
 
     public int playerAttack;
     public int playerHealth;
 
     public bool detectSwipeOnlyAfterRelease = true, checkSwipe = false;
-    public bool fire, water, earth, metal, wood;
+    //public bool fire, water, earth, metal, wood;
     public string material;
     public int swipeDirection = 0;
     public float swipeThreshold = 20f;
     public float holdThreshold = 0.3f;
     public EnemySpawner spawner;
     public float swordRotationOriginalZ;
-    public Image swordImg;
+    public Image swordImg, shieldImg;
     public GameObject bossSwiper;
 
     //public GameObject bossSwiperPrefab;
@@ -33,6 +34,8 @@ public class Player : MonoBehaviour
         cam = Camera.main;
         initialPlayerAttack = playerAttack;
         Debug.Log("Initial Attack: " + initialPlayerAttack);
+        oldSwordColor = swordImg.color;
+        oldShieldColor = shieldImg.color;
     }
 
     // Update is called once per frame
@@ -133,13 +136,13 @@ public class Player : MonoBehaviour
 
     private float VerticalMove()
     {
-        Debug.Log("Vertical move " + Mathf.Abs(fingerDown.x - fingerUp.x));
+        //Debug.Log("Vertical move " + Mathf.Abs(fingerDown.x - fingerUp.x));
         return Mathf.Abs(fingerDown.y - fingerUp.y);
     }
 
     private float HorizontalValMove()
     {
-        Debug.Log("Horizontal move " + Mathf.Abs(fingerDown.x - fingerUp.x));
+        //Debug.Log("Horizontal move " + Mathf.Abs(fingerDown.x - fingerUp.x));
         return Mathf.Abs(fingerDown.x - fingerUp.x);
     }
 
@@ -175,8 +178,16 @@ public class Player : MonoBehaviour
     public void RecieveDamage(int damage)
     {
         playerHealth -= damage;
-        cam.transform.DOComplete();
-        cam.transform.DOShakePosition(1f);
+        if (!BlockPhase.instance.blockPhase)
+        {
+            swordImg.color = new Color(oldSwordColor.r, oldSwordColor.g - oldSwordColor.r / 10, oldSwordColor.b - oldSwordColor.r / 10);
+            oldSwordColor = swordImg.color;
+        }
+        else if (BlockPhase.instance.blockPhase)
+        {
+            shieldImg.color = new Color(oldShieldColor.r, oldShieldColor.g, oldShieldColor.b, oldShieldColor.a - oldShieldColor.r/10);
+            oldShieldColor = shieldImg.color;
+        }
     }
 
     public void CheckPlayerHealth(EnemySpawner enemySpawner)

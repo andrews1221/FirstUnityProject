@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.UI;
 
 public class EnemyScript : MonoBehaviour
 {
@@ -9,11 +10,13 @@ public class EnemyScript : MonoBehaviour
     public float initialSpeed;
     public string material;
     public string role;//can be "enemy", "miniBoss", "boss".
-    [HideInInspector] public float speed;
+    [HideInInspector] public float speed, oldSpeed;
     [HideInInspector] public EnemySpawner spawner;
     public bool fire, water, earth, metal, wood;
     public int attack = 1;
     public int health, arrowDirection, number, maxHealth;
+    public Slider slider;
+    [SerializeField] SpriteRenderer enemySpriteRenderer;
     private Player player;
     private ArrowDirection arrowScript;
     // Start is called before the first frame update
@@ -24,7 +27,8 @@ public class EnemyScript : MonoBehaviour
         arrowScript = this.transform.GetChild(0).GetComponent<ArrowDirection>();
         //arrowDirection = Random.Range(1,5);
         health = maxHealth;
-        speed = initialSpeed;
+        slider.maxValue = maxHealth;
+        //oldSpeed = initialSpeed;
         //Debug.Log("Health " + health);
         //Debug.Log(playerControls.GetComponent<ControlsScript>().SWIPE_DEIRECTION);
     }
@@ -41,6 +45,7 @@ public class EnemyScript : MonoBehaviour
         //transform.GetComponentInParent<Transform>().position = Vector3.MoveTowards(transform.GetComponentInParent<Transform>().position, targetPosition, Time.deltaTime*speed);
         if (player.swipeDirection == arrowDirection && !spawner.blockphaseController.blockPhase)
         {
+            GetDamageAnimation();
             player.swipeDirection = 0;
             player.checkSwipe = false;
             health -= DetermineDamageToEnemy();//(int)Mathf.Round(player.playerAttack*arrowScript.Convert(spawner.distanceBetweenEnemyAndPlayer)*10);
@@ -51,7 +56,7 @@ public class EnemyScript : MonoBehaviour
             Debug.Log("Player: Damage Dealt; Block Phase: " + spawner.blockphaseController.blockPhase);
             return;
         }
-        else if (player.swipeDirection != arrowDirection && player.checkSwipe && !spawner.blockphaseController.blockPhase)
+        else if (player.swipeDirection != arrowDirection && player.checkSwipe && !BlockPhase.instance.blockPhase)
         {
             Debug.Log("Swipe Direction: " + player.swipeDirection + " and Arrow Direction: " + arrowDirection);
             player.swipeDirection = 0;
@@ -87,42 +92,10 @@ public class EnemyScript : MonoBehaviour
         }
     }
 
-    //public void AttackPlayer(int damage)
-    //{
-    //    this.transform.DOComplete();
-    //    //Camera.main.transform.DOShakePosition(1f, new Vector3(1f, 0f, 0f), 10, 0);
-    //    //this.transform.DOScale(1.2f, 0.5f).OnComplete(() => {
-    //    //    this.transform.DOScale(1f, 0.5f);
-    //    //    spawner.pullBackEnemy = true;
-    //    //});
-    //    //this.transform.DORotate(new Vector3(0, 60f, 0), 5f).OnComplete(() => {
-    //    //    this.transform.DORotate(new Vector3(0, 0, 0), 0.5f);
-    //    this.transform.DORotate(new Vector3(0, 60, 0), 20f).OnComplete(() => {
-    //        this.transform.DORotate(new Vector3(0, 0, 0), 0.5f);
-    //        if (spawner.blockphaseController.blockPhase)
-    //        {
-    //            player.playerHealth -= damage;
-    //            spawner.pullBackEnemy = true;
-    //            if(spawner.enemyTime)
-    //                spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.enemyBlockBtnList);
-    //            else if(spawner.miniBossTime)
-    //                spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.miniBossBlockBtnList);
-    //            else if (spawner.bossTime)
-    //            {
-    //                BlockPhase.instance.RestoreBossCombo();
-    //            }
-
-    //            spawner.blockphaseController.blockPhase = false;
-    //            spawner.blockphaseController.currentBtn = 0;
-    //            player.CheckPlayerHealth(spawner);
-    //        }
-    //    });
-    //}
-
-    public void AttackPlayer(int damage)
+    public void AttackPlayer(int damage, float attackTime)
     {
         {
-            this.transform.DOComplete();
+            //this.transform.DOComplete();
             //Camera.main.transform.DOShakePosition(1f, new Vector3(1f, 0f, 0f), 10, 0);
             //this.transform.DOScale(1.2f, 0.5f).OnComplete(() => {
             //    this.transform.DOScale(1f, 0.5f);
@@ -130,17 +103,17 @@ public class EnemyScript : MonoBehaviour
             //});
             //this.transform.DORotate(new Vector3(0, 60f, 0), 5f).OnComplete(() => {
             //    this.transform.DORotate(new Vector3(0, 0, 0), 0.5f);
-            this.transform.DORotate(new Vector3(0, 60, 0), 20f).OnComplete(() => {
+            this.transform.DORotate(new Vector3(0, 60, 0), attackTime).OnComplete(() => {
 
                 if (spawner.blockphaseController.blockPhase)
                 {
                     if (spawner.enemyTime)
                     {
-                        spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.enemyBlockBtnList);
+                        BlockPhase.instance.SetBlockButtons(false, BlockPhase.instance.enemyBlockBtnList);
                     }
                     else if (spawner.miniBossTime)
                     {
-                        spawner.blockphaseController.SetBlockButtons(false, spawner.blockphaseController.miniBossBlockBtnList);
+                        BlockPhase.instance.ResetMiniBossBlockButtons();
                     }
                     else if (spawner.bossTime)
                     {
@@ -149,9 +122,9 @@ public class EnemyScript : MonoBehaviour
                 }
                 this.transform.DORotate(new Vector3(0, 0, 0), 2f).OnComplete(() =>
                 {
-                    player.playerHealth -= damage;
+                    player.RecieveDamage(damage);
                     spawner.pullBackEnemy = true;
-                    spawner.blockphaseController.blockPhase = false;
+                    BlockPhase.instance.blockPhase = false;
                     player.CheckPlayerHealth(spawner);
                 });
                 
@@ -165,24 +138,28 @@ public class EnemyScript : MonoBehaviour
             Debug.Log("Enemy Killed");
             //spawner.trigger = true;
             //Destroy(transform.parent.gameObject);
-            spawner.SetCurrentEnemy(false);
             health = maxHealth;
             spawner.triggerMoveEnemy = false;
-            if (spawner.enemyTime)
-            {
-                spawner.progressController.UpdateProgressBar();
-            }
+            spawner.SetCurrentEnemy(false);
             spawner.CountEnemies();
+            spawner.progressController.UpdateProgressBar();
             spawner.DetermineEnemyToSpawn();
+            //Invoke("InvokeDetermineEnemyToSpawn", 2*Time.deltaTime);
             GameDataManager.instance.AddCoins(1);
             //this.transform.GetChild(0).GetComponent<EnemyScript>().enabled = false;
         }
         else
         {
+            UpdateHealthBar();
             arrowDirection = Random.Range(1, 5);
             arrowScript.ChooseArrowDirection(arrowDirection);
             Debug.Log("New Direction From Enemy Script: " + arrowDirection);
         }
+    }
+
+    private void InvokeDetermineEnemyToSpawn()
+    {
+        spawner.DetermineEnemyToSpawn();
     }
 
     public void SetEnemyScale(float distance)
@@ -196,5 +173,15 @@ public class EnemyScript : MonoBehaviour
         this.transform.DOKill();
     }
 
+    private void GetDamageAnimation()
+    {
+        this.transform.DOKill();
+        this.transform.DOShakePosition(0.5f, 0.1f);
+    }
+
+    public void UpdateHealthBar()
+    {
+        slider.value = health;
+    }
     
 }

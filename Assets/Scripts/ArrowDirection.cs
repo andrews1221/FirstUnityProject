@@ -102,4 +102,9 @@ public class ArrowDirection : MonoBehaviour
         //Debug.Log("Arrow value: " + distance / maxDistanceBetweenEnemyAndPlayer);
         return distance / maxDistanceBetweenEnemyAndPlayer;
     }
+
+    public void SetTransparency(float a)
+    {
+        arrowSpriteRenderer.color = new Color(arrowSpriteRenderer.color.r, arrowSpriteRenderer.color.g, arrowSpriteRenderer.color.b, a);
+    }
 }

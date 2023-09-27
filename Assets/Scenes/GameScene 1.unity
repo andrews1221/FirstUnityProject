@@ -2782,7 +2782,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 490, y: 0}
-  m_SizeDelta: {x: 120, y: 120}
+  m_SizeDelta: {x: 90, y: 140}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &686723555
 MonoBehaviour:
@@ -2797,14 +2797,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 0.1966275, g: 1, b: 0, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: dd4be4060da589d448fd260218cd0eb4, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 267164e59ecd441febdf18120777d214, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -2822,6 +2822,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 686723553}
   m_CullTransparentMesh: 1
+--- !u!1 &693716462 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3171092869510977390, guid: dbfee7bf9c89ff845a754aac0feabf27, type: 3}
+  m_PrefabInstance: {fileID: 1469798138}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &816049591
 GameObject:
   m_ObjectHideFlags: 0
@@ -3217,7 +3222,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3369,7 +3374,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 0, b: 0, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3394,6 +3399,11 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 924945582}
   m_CullTransparentMesh: 1
+--- !u!1 &965914457 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 3171092869510977390, guid: dbfee7bf9c89ff845a754aac0feabf27, type: 3}
+  m_PrefabInstance: {fileID: 666562347}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &983259450
 GameObject:
   m_ObjectHideFlags: 0
@@ -4234,16 +4244,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0059240dc0d07be449add9827ae46f4f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  enemyPrefab: {fileID: 7499622799034298886, guid: c1663bf422365438b9bb81ae4b90e5bc, type: 3}
-  miniBoss1Prefab: {fileID: 7584728882064653143, guid: 5519242ad2623493fb975793d435b2f2, type: 3}
-  miniBoss2Prefab: {fileID: 7408058464941981689, guid: 8d1e7e02608524a7f96e4bdf7fe5300a, type: 3}
-  bossPrefab: {fileID: 6880451458741827668, guid: 33ee925789a4a4ad39b0fab996e089da, type: 3}
-  player: {fileID: 1567285381}
   triggerMoveEnemy: 0
   pullBackEnemy: 0
   numberOfEnemies: 10
   enemyCount: 0
-  miniBossCount: 0
   distanceBetweenEnemyAndPlayer: 0
   progressController: {fileID: 1460876582}
   blockphaseController: {fileID: 556057747}
@@ -4255,6 +4259,15 @@ MonoBehaviour:
   enemyTime: 0
   miniBossTime: 0
   bossTime: 0
+  miniBossCount: 0
+  enemyPrefab: {fileID: 7499622799034298886, guid: c1663bf422365438b9bb81ae4b90e5bc, type: 3}
+  miniBoss1Prefab: {fileID: 7584728882064653143, guid: 5519242ad2623493fb975793d435b2f2, type: 3}
+  miniBoss2Prefab: {fileID: 7408058464941981689, guid: 8d1e7e02608524a7f96e4bdf7fe5300a, type: 3}
+  bossPrefab: {fileID: 6880451458741827668, guid: 33ee925789a4a4ad39b0fab996e089da, type: 3}
+  player: {fileID: 1567285381}
+  spawnersList:
+  - {fileID: 965914457}
+  - {fileID: 693716462}
 --- !u!4 &1235139188
 Transform:
   m_ObjectHideFlags: 0
@@ -5106,6 +5119,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   slider: {fileID: 2058187524}
+  spawner: {fileID: 1235139187}
 --- !u!1 &1464231820
 GameObject:
   m_ObjectHideFlags: 0
@@ -5721,11 +5735,6 @@ MonoBehaviour:
   playerHealth: 10
   detectSwipeOnlyAfterRelease: 1
   checkSwipe: 0
-  fire: 0
-  water: 0
-  earth: 0
-  metal: 0
-  wood: 0
   material: fire
   swipeDirection: 0
   swipeThreshold: 20
@@ -5733,6 +5742,7 @@ MonoBehaviour:
   spawner: {fileID: 1235139187}
   swordRotationOriginalZ: 20
   swordImg: {fileID: 1945408330}
+  shieldImg: {fileID: 900764555}
   bossSwiper: {fileID: 1645213946}
 --- !u!4 &1567285382
 Transform:

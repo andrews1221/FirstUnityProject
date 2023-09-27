@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class ProgressController : MonoBehaviour
 {
     [SerializeField] private Slider slider;
+    [SerializeField] private EnemySpawner spawner;
 
     public void SetProgressBarMaxValue(int max)
     {
@@ -14,7 +15,7 @@ public class ProgressController : MonoBehaviour
 
     public void UpdateProgressBar()
     {
-        slider.value += 1;
+        slider.value = spawner.enemyCount;
     }
     
 }

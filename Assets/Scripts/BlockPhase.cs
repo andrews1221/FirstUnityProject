@@ -23,6 +23,7 @@ public class BlockPhase : MonoBehaviour
     private Vector3 canvasBounds;
     private Vector2 temporaryPos;
     private RectTransform rectTran;
+    private GameObject activeHolder;
     private bool animateButton, checkPos;
     private List<int> intMiniBoss = new List<int>{ 1, 2, 3, 4, 5}; // 0 is used to substitute already output integers
     private List<int> sequenceNumMiniBoss = new List<int>();
@@ -71,6 +72,7 @@ public class BlockPhase : MonoBehaviour
                 blockPhase = false;
                 SetBlockButtons(false, enemyBlockBtnList);
                 spawner.pullBackEnemy = true;
+                spawner.SetPullbackOffset(3);
                 spawner.enemiesObjects[spawner.enemyCount].transform.GetChild(0).GetComponent<EnemyScript>().StopRotationAnimation();//EnemyScript is attached to a child
                 spawner.enemiesObjects[spawner.enemyCount].transform.GetChild(0).transform.rotation = Quaternion.identity;
 
@@ -93,6 +95,7 @@ public class BlockPhase : MonoBehaviour
             SetBlockButtons(false, miniBossBlockBtnList);
             sequenceNumMiniBoss = new List<int>();
             spawner.pullBackEnemy = true;
+            spawner.SetPullbackOffset(3);
             spawner.currentMiniBoss.transform.GetChild(0).GetComponent<EnemyScript>().StopRotationAnimation();//EnemyScript is attached to a child
             spawner.currentMiniBoss.transform.GetChild(0).transform.rotation = Quaternion.identity;
 
@@ -109,7 +112,7 @@ public class BlockPhase : MonoBehaviour
         for (int i = 0; i < buttons.Count; i++)
         {
             buttons[i].gameObject.SetActive(state);
-            Debug.Log("Button " + i + " " + state);
+            //Debug.Log("Button " + i + " " + state);
         }
         currentBtn = 0;
     }
@@ -125,7 +128,7 @@ public class BlockPhase : MonoBehaviour
 
     private IEnumerator AnimateButtonCoroutine(Button button)
     {
-        button.transform.DOComplete();
+        //button.transform.DOComplete();
         button.transform.DOScale(1.2f, 0.4f).OnComplete(() =>
         {
             button.transform.DOScale(1f, 0.4f);
@@ -162,43 +165,45 @@ public class BlockPhase : MonoBehaviour
         {
             miniBossBlockBtnList[i].gameObject.SetActive(true);
             miniBossBlockBtnList[i].enabled = false;
-            //RectTransform rectTran = miniBossBlockBtnList[i].GetComponent<RectTransform>();
-            //Vector2 temporaryPos = new Vector2(Random.Range(-canvasBounds.x / 2 + miniBossBlockBtnList[i].GetComponent<RectTransform>().rect.width,
-            //    canvasBounds.x / 2 - miniBossBlockBtnList[i].GetComponent<RectTransform>().rect.width), Random.Range(-canvasBounds.y / 2 + miniBossBlockBtnList[i].GetComponent<RectTransform>().rect.height,
-            //    canvasBounds.y / 2 - miniBossBlockBtnList[i].GetComponent<RectTransform>().rect.height));
-            //rectTran.localPosition = temporaryPos;
-            //GeneratePosition(i);
             int number = DistributeNumbers();
             miniBossBlockBtnList[i].transform.GetChild(0).GetComponent<TMP_Text>().text = number.ToString();
             miniBossBlockBtnList[i].transform.GetChild(0).gameObject.SetActive(false);
-            if (number == 1)
+            if (number == 1)//(miniBossBlockBtnList[i].transform.GetChild(0).GetComponent<TMP_Text>().text == "1")
             {
                 miniBossBlockBtnList[i].enabled = true;
                 miniBossBlockBtnList[i].transform.GetChild(0).gameObject.SetActive(true);
                 StartCoroutine(AnimateButtonCoroutine(miniBossBlockBtnList[i]));
             }
         }
-        intMiniBoss = new List<int>{ 1, 2, 3, 4, 5 };
+        intMiniBoss = new List<int> { 1, 2, 3, 4, 5 };
     }
 
-    public void SpawnBossCombo()
+    public void ResetMiniBossBlockButtons()
     {
-        for(int i = 0; i < circleHolder.transform.childCount; i++)
+        StopAllCoroutines();
+        for (int i = 0; i < miniBossBlockBtnList.Count; i++)
         {
-            circleHolder.transform.GetChild(i).gameObject.SetActive(true);
-            Vector2 camPos = Camera.main.ScreenToWorldPoint(canvasBounds);
-            CircleCollider2D collider = circleHolder.transform.GetChild(i).GetComponent<CircleCollider2D>();
-            circleHolder.transform.GetChild(i).transform.position = new Vector2(Random.Range(-camPos.x
-                + 2*collider.radius, camPos.x - 2*collider.radius), Camera.main.ScreenToWorldPoint(canvasBounds).y+2*collider.radius);
-            circleHolder.transform.GetChild(i).GetComponent<Rigidbody2D>().gravityScale = 0.5f;
+            miniBossBlockBtnList[i].gameObject.SetActive(false);
+            miniBossBlockBtnList[i].enabled = false;
+            miniBossBlockBtnList[i].transform.GetChild(0).gameObject.SetActive(false);
         }
-        blade.gameObject.SetActive(true);
-        blade.enabled = true;
+    }
+
+    public void PrepareMiniBossBlockButtons()
+    {
+        for (int i = 0; i < miniBossBlockBtnList.Count; i++)
+        {
+            int number = DistributeNumbers();
+            miniBossBlockBtnList[i].transform.GetChild(0).GetComponent<TMP_Text>().text = number.ToString();
+            miniBossBlockBtnList[i].transform.GetChild(0).gameObject.SetActive(false);
+        }
+        intMiniBoss = new List<int> { 1, 2, 3, 4, 5 };
     }
 
     private IEnumerator SpawnBossComboCoroutine()
     {
         int countCircles = 0;
+        activeHolder = circleHolder;
         blade.gameObject.SetActive(true);
         blade.enabled = true;
         blade.GetComponent<BossCombo>().bossCombo = true;
@@ -211,6 +216,7 @@ public class BlockPhase : MonoBehaviour
                 blade.GetComponent<BossCombo>().bossCombo = false;
                 player.checkSwipe = false;
                 spawner.pullBackEnemy = true;
+                spawner.SetPullbackOffset(3);
                 spawner.boss.transform.GetChild(0).GetComponent<EnemyScript>().StopRotationAnimation();//EnemyScript is attached to a child
                 spawner.boss.transform.GetChild(0).transform.rotation = Quaternion.identity;
                 RestoreBossCombo();
@@ -231,17 +237,6 @@ public class BlockPhase : MonoBehaviour
         }
         countCircles = 0;
         countComboCircles = 0;
-    }
-
-    public void RestoreBossCombo()
-    {
-        for (int i = 0; i < circleHolder.transform.childCount; i++)
-        {
-            circleHolder.transform.GetChild(i).GetComponent<Rigidbody2D>().gravityScale = 0f;
-            circleHolder.transform.GetChild(i).transform.localPosition = Vector2.zero;
-        }
-        blade.gameObject.SetActive(false);
-        blade.enabled = false;
     }
 
     private void GeneratePosition(int orderNum)
@@ -316,6 +311,7 @@ public class BlockPhase : MonoBehaviour
     private IEnumerator SpawnBossZigzagCoroutine()
     {
         int countCircles = 0;
+        activeHolder = zigzagHolder;
         blade.gameObject.SetActive(true);
         blade.enabled = true;
         blade.GetComponent<BossCombo>().bossZigzag = true;
@@ -344,6 +340,7 @@ public class BlockPhase : MonoBehaviour
             countComboCircles = 0;
             player.checkSwipe = false;
             spawner.pullBackEnemy = true;
+            spawner.SetPullbackOffset(3);
             spawner.boss.transform.GetChild(0).GetComponent<EnemyScript>().StopRotationAnimation();//EnemyScript is attached to a child
             spawner.boss.transform.GetChild(0).transform.rotation = Quaternion.identity;
             blade.transform.position = new Vector2(-10, 0);
@@ -356,6 +353,7 @@ public class BlockPhase : MonoBehaviour
     private IEnumerator SpawnBossCrossCoroutine()
     {
         int countCircles = 0;
+        activeHolder = crossHolder;
         blade.gameObject.SetActive(true);
         blade.enabled = true;
         blade.GetComponent<BossCombo>().bossCross = true;
@@ -411,6 +409,7 @@ public class BlockPhase : MonoBehaviour
 
     private IEnumerator SpawnBossButton()
     {
+        activeHolder = null;
         bossButton.gameObject.SetActive(true);
         bossButton.transform.localScale = new Vector2(1, 1);
         while (blockPhase && bossButton.transform.localScale.x > 0.2)
@@ -428,16 +427,50 @@ public class BlockPhase : MonoBehaviour
         {
             case 0:
                 StartCoroutine(SpawnBossComboCoroutine());
+                Debug.Log("Boss Combo");
                 break;
             case 1:
                 StartCoroutine(SpawnBossZigzagCoroutine());
+                Debug.Log("Boss Zig Zag");
                 break;
             case 2:
                 StartCoroutine(SpawnBossCrossCoroutine());
+                Debug.Log("Boss Cross");
                 break;
             case 3:
                 StartCoroutine(SpawnBossButton());
+                Debug.Log("Boss Button");
                 break;
+        }
+    }
+
+    public void RestoreBossCombo()
+    {
+        if (activeHolder == circleHolder || activeHolder == zigzagHolder || activeHolder == crossHolder)
+        {
+            StopAllCoroutines();
+            for (int i = 0; i < activeHolder.transform.childCount; i++)
+            {
+                if (activeHolder == circleHolder)
+                {
+                    activeHolder.transform.GetChild(i).GetComponent<Rigidbody2D>().gravityScale = 0f;
+                    activeHolder.transform.GetChild(i).transform.localPosition = Vector2.zero;
+                }
+                else if (activeHolder == zigzagHolder || activeHolder == crossHolder)
+                {
+                    activeHolder.transform.GetChild(i).gameObject.SetActive(false);
+                    countComboCircles = 0;
+                }
+
+            }
+            blade.gameObject.SetActive(false);
+            blade.enabled = false;
+            Debug.Log("Boss Combos Restored");
+        }
+
+        else
+        {
+            bossButton.gameObject.SetActive(false);
         }
     }
 }
